@@ -56,12 +56,12 @@ RSI = 100 - (100 / (1 + RS))
 
 | RSI Level | Signal |
 |---|---|
-| > 75 | Strongly overbought — trim signal (especially if >10% above 50-day SMA) |
-| 65–75 | Overbought — caution for new buys |
-| 45–65 | Neutral |
-| 35–45 | Mildly oversold — monitor for entry |
-| < 35 | Oversold — consider adding if thesis intact and no fundamental breakdown |
-| < 25 | Deeply oversold — strong add signal if fundamentals solid; could also mean breakdown |
+| > 70 | Overbought — trim signal (especially if >10% above 50-day SMA); strong momentum may still push higher |
+| 60–70 | Mildly overbought — caution for new buys; acceptable to hold existing positions |
+| 40–60 | Neutral |
+| 30–40 | Approaching oversold — monitor for entry; thesis re-check required |
+| < 30 | Oversold — consider adding if thesis intact and no fundamental breakdown |
+| < 20 | Deeply oversold — strong add signal if fundamentals solid; could also mean structural breakdown |
 
 **Important**: RSI divergence is a high-value signal:
 - Price makes new high but RSI makes lower high → bearish divergence → consider trimming
@@ -142,11 +142,11 @@ Assign after computing all indicators:
 
 | Score | Conditions |
 |---|---|
-| 5 | Price above all MAs + RSI 40–65 + MACD bullish crossover + volume confirming |
-| 4 | Price above 20/50 SMA + RSI < 65 + MACD positive |
+| 5 | Price above all MAs + RSI 40–60 + MACD bullish crossover + volume confirming |
+| 4 | Price above 20/50 SMA + RSI < 60 + MACD positive |
 | 3 | Mixed signals — some positive, some negative |
-| 2 | Price below 50-day SMA OR RSI > 72 (overbought for new buy) |
-| 1 | Price below 200-day SMA + MACD negative + high RSI divergence |
+| 2 | Price below 50-day SMA OR RSI > 70 (overbought for new buy) |
+| 1 | Price below 200-day SMA + MACD negative + RSI divergence bearish |
 | 0 | Technical breakdown — price making new lows, all MAs declining |
 
 ---
@@ -155,12 +155,12 @@ Assign after computing all indicators:
 
 For a new BUY:
 - Price is above 50-day SMA (uptrend filter)
-- RSI between 35–60 (not overbought, not in freefall)
+- RSI between 30–60 (not overbought, not in freefall)
 - MACD histogram expanding positively, or just crossed bullish
 - Volume on recent up days exceeds volume on recent down days
 
 For a TRIM or SELL:
-- RSI > 72 with price >15% above 50-day SMA
+- RSI > 70 with price >15% above 50-day SMA
 - Bearish MACD divergence
 - Price breaking below 50-day SMA on above-average volume
 - Price touches upper Bollinger Band on declining volume

@@ -130,12 +130,19 @@ This is the mechanism for the trading agent to improve over time — not by pred
 - No earnings within 3 days
 - Symbol not already traded today
 - Risk checks pass (buying power, concentration limits)
+- **Exception — momentum breakout**: if price closes at a new 52-week high on volume ≥ 1.5× its 30-day average, the score threshold drops to ≥ 11. A breakout on high volume signals institutional conviction; the overbought RSI that typically accompanies it should not veto the entry. All other conditions (regime, earnings, risk checks) still apply.
 
 **Automatic SELL triggers** (any one sufficient):
-- Stop-loss price breached
+- **Stop-loss breached**: initial stop set at entry using ATR method in `06_risk_management.md`
+- **Trailing stops** (see `06_risk_management.md`): stop moves to breakeven at +20% gain; trails 15% below current price at +40%; partial profit taken at +75%
 - Score drops to ≤ 5 on a position held for > 5 days
-- Thesis-breaking news event
+- **Earnings gap down**: position gaps down >8% on earnings day on above-average volume — trim or exit before the next session; do not hold through the subsequent drift expecting recovery
+- **Death cross on a losing position**: 20-day SMA crosses below 50-day SMA while the position is already down >10% from cost — this combination signals trend deterioration on an underwater position; trim by at least 50%
+- **Sector ETF breakdown**: the stock's sector ETF (SMH for semis/memory, XLK for software/mega-cap, XLC for comms) closes below its 50-day SMA on volume >1.5× average — reduce exposure to all holdings in that sector; this signals a sustained rotation, not a one-day event
+- Thesis-breaking news event (earnings miss + guidance cut, major competitive loss, regulatory action)
 - Position held > 60 days and fundamental thesis no longer valid
+- **Rebalancing trim**: sector concentration >40% of portfolio AND a stock from a different sector scores ≥ 14 — trim the lowest-scoring concentrated position by enough to bring the sector under 40% and fund the new entry
+- **Opportunity swap**: a current holding scores ≤ 10 AND an alternative stock scores ≥ 16 with a stronger composite thesis — sell the weak holding to fund the stronger one
 
 **Always HOLD** (do nothing):
 - Score 8–13 with no stop-loss breach

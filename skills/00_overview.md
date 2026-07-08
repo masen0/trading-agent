@@ -42,9 +42,15 @@ This agent is process-driven, not signal-chasing. The goal is not to predict the
 
 ### Phase 2 — Quick Screen (~3 min)
 For all Tier 1 and Tier 2 stocks in `01_universe.md`:
-- Pull today's % price change
-- Flag any stock that moved >3% or shows volume >2× its 30-day average
-- Only these flagged stocks plus current holdings proceed to deep analysis
+- Pull today's % price change (vs. previous day's close)
+- Flag for deep analysis if ANY of the following are true:
+  - Daily move >3% vs. previous close (up or down)
+  - Volume >2× its 30-day average
+  - RSI(14) crossed into oversold (<30) or overbought (>70)
+  - Price crossed its 50-day or 200-day SMA (in either direction)
+  - The stock's sector ETF moved >2% today (SMH for semis/memory, XLK for tech, XLC for comms) — flag all stocks from that sector in the universe
+- Current holdings (Tier 1) always proceed to deep analysis regardless of the above
+- Only flagged stocks plus Tier 1 proceed to Phase 3
 
 ### Phase 3 — Deep Analysis (per flagged stock, ~5 min each)
 For each stock entering deep analysis, work through ALL of:

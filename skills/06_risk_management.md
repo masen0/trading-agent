@@ -63,7 +63,7 @@ Use ATR (14-day) to set dynamic stop-loss distances:
 | Low conviction | 1.5× ATR below entry price |
 
 **Minimum stop distance**: Always at least 5% below entry (don't get shaken out by normal noise).
-**Maximum stop distance**: Never more than 15% below entry (limits loss to manageable level).
+**Maximum stop distance**: Never more than 20% below entry. AI/tech stocks in this universe can move 8–15% in a single session; a 15% ceiling would stop out fundamentally intact positions on normal volatility.
 
 ### Stop-Loss Triggers (Execute Without Hesitation)
 
@@ -97,6 +97,10 @@ Once a position is up >75%:
 | Single position down >20% | Exit unless extremely high conviction with clear catalyst near-term |
 | Total portfolio down >15% from peak | Pause all new buys; focus on stops; reassess market regime |
 | Total portfolio down >25% from peak | Emergency review — exit weakest positions; raise cash |
+
+### Rebalancing Authority
+
+The agent has full authority to sell any current holding — including Tier 1 positions — to rebalance the portfolio, free up capital for a better opportunity, or reduce concentration risk. No holding is permanent or protected. Evaluate each position on its current merits every session.
 
 ### Correlation Risk
 
