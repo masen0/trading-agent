@@ -26,6 +26,7 @@ At the start of each session, use the available Robinhood MCP tool for fetching 
 | MU | Micron Technology | HBM (High Bandwidth Memory) for AI training chips; DRAM and NAND for data centers |
 | SNDK | Sandisk | NAND flash and SSDs powering AI storage infrastructure |
 | WDC | Western Digital | HDD and flash storage for AI data centers and model checkpointing |
+| SKHY | SK hynix (ADR) | World's #1 HBM supplier — dominant share of high-bandwidth memory for Nvidia AI GPUs (Korean ADR; regular-hours trading only) |
 
 ### Semiconductor Chips
 | Ticker | Company | AI Angle |
@@ -67,6 +68,7 @@ At the start of each session, use the available Robinhood MCP tool for fetching 
 | SNOW | Snowflake | AI data cloud; Snowflake Cortex for running AI on enterprise data |
 | DDOG | Datadog | AI observability; monitoring LLM applications and AI infrastructure |
 | PANW | Palo Alto Networks | AI-native cybersecurity; Precision AI platform |
+| CRWD | CrowdStrike | AI-native endpoint security; Falcon platform and Charlotte AI agent |
 | NOW | ServiceNow | AI automation for enterprise workflows; Now Assist platform |
 | CRM | Salesforce | Einstein AI across CRM; Agentforce AI agent platform |
 | PLTR | (see above) | |
@@ -100,6 +102,7 @@ At the start of each session, use the available Robinhood MCP tool for fetching 
 | VST | Vistra Energy | Nuclear + gas generation; AI data center power demand |
 | NRG | NRG Energy | Power generation; growing data center customer base |
 | ETR | Entergy | Regional utility; data center growth in service territory |
+| GEV | GE Vernova | Gas turbines, grid equipment, and electrification — direct supplier to AI data center power buildout |
 
 ### Networking
 | Ticker | Company | AI Angle |
@@ -107,15 +110,20 @@ At the start of each session, use the available Robinhood MCP tool for fetching 
 | ANET | Arista Networks | AI data center networking switches; dominant in hyperscaler ethernet |
 | CSCO | Cisco | AI networking and security; Silicon One for hyperscalers |
 
+### Space & Satellite Connectivity
+| Ticker | Company | AI Angle |
+|---|---|---|
+| SPCX | SpaceX (Class A) | Starlink connectivity for edge/distributed AI and remote data; AI-driven autonomous launch/landing. Indirect AI play — high growth, high volatility; scan on catalyst. |
+
 ---
 
 ## Screening Priority Order
 
 Each session, screen in this order:
 1. Tier 1 (always): whatever symbols are returned by `get_equity_positions` with quantity > 0
-2. Tier 2 — Memory & Storage: MU, SNDK, WDC
+2. Tier 2 — Memory & Storage: MU, SNDK, WDC, SKHY
 3. Tier 2 — Chips & Equipment: NVDA, AMD, AVGO, ARM, AMAT, LRCX, KLAC, ASML, MRVL
 4. Tier 2 — Mega-cap: GOOGL, MSFT, META, AMZN, AAPL, TSLA
-5. Tier 2 — Software/Cloud: PLTR, SNOW, DDOG, PANW, NOW, CRM, ORCL, CRWV, NET
+5. Tier 2 — Software/Cloud: PLTR, SNOW, DDOG, PANW, CRWD, NOW, CRM, ORCL, CRWV, NET
 6. Tier 2 — Hardware: SMCI, DELL, VRT
-7. Tier 3: only on specific catalyst or weekly cycle
+7. Tier 3: only on specific catalyst or weekly cycle (Power & Energy incl. GEV; Space & Connectivity incl. SPCX)
