@@ -67,9 +67,11 @@ Before acting on any score above 13 (Buy) or below 7 (Sell), force yourself to a
 
 ### For a SELL/TRIM signal — argue the bull case:
 - What is the strongest argument that this stock goes UP from here?
-- Is the current weakness a temporary event or a structural change?
-- Would a long-term investor see this dip as an opportunity?
-- Is this a stop-loss based on price action or a real fundamental change?
+- Is the current weakness a temporary pullback within an intact uptrend, or a genuine trend break (price closed below a rising 50-day SMA)?
+- Is the trend still structurally up despite the noise?
+- Is this a mechanical stop/trend-break exit, or an emotional reaction to a red day?
+
+(Note: this debate does not authorize *buying* weakness — the trend filter still forbids new entries below the 50-day SMA. It only governs whether to exit an existing position.)
 
 **Rule**: If you cannot clearly articulate why the opposing case is wrong, reduce position size by 50% or do nothing. Uncertainty is not a reason to trade.
 
@@ -126,13 +128,18 @@ This is the mechanism for the trading agent to improve over time — not by pred
 
 **Automatic BUY triggers** (all must be true):
 - Score ≥ 14
+- **Trend filter (non-negotiable)**: the stock itself is above its own *rising* 50-day SMA. Never buy a stock trading below its 50-day SMA, regardless of score — that is a downtrend, and buying it is the falling-knife / averaging-down mistake. A strong fundamental story does NOT override a broken trend.
+- **Re-entry lockout**: if this symbol was sold at a loss within the last 5 trading days, do not re-buy unless price has reclaimed the 50-day SMA on above-average volume OR shows a confirmed bullish RSI divergence.
 - Not in bear market regime (SPY above 50-day SMA)
 - No earnings within 3 days
 - Symbol not already traded today
 - Risk checks pass (buying power, concentration limits)
-- **Exception — momentum breakout**: if price closes at a new 52-week high on volume ≥ 1.5× its 30-day average, the score threshold drops to ≥ 11. A breakout on high volume signals institutional conviction; the overbought RSI that typically accompanies it should not veto the entry. All other conditions (regime, earnings, risk checks) still apply.
+- **Exception — momentum breakout**: if price closes at a new 52-week high on volume ≥ 1.5× its 30-day average, the score threshold drops to ≥ 11. A breakout on high volume signals institutional conviction; the overbought RSI that typically accompanies it should not veto the entry. All other conditions (trend filter, regime, earnings, risk checks) still apply.
 
 **Automatic SELL triggers** (any one sufficient):
+
+*Exit discipline: losers are cut fast at a pre-set stop; winners are exited only by a trailing stop or a genuine trend break. Do NOT sell a healthy, trending position because RSI is high, it's "up a lot," or the score slipped a point — that is cutting a winner early and inverts the strategy's asymmetry. The exact mechanics of every exit type below are defined in one place — see "Exit Rules — Consolidated" in `06_risk_management.md`.*
+
 - **Stop-loss breached**: initial stop set at entry using ATR method in `06_risk_management.md`
 - **Trailing stops** (see `06_risk_management.md`): stop moves to breakeven at +20% gain; trails 15% below current price at +40%; partial profit taken at +75%
 - Score drops to ≤ 5 on a position held for > 5 days
@@ -148,3 +155,5 @@ This is the mechanism for the trading agent to improve over time — not by pred
 - Score 8–13 with no stop-loss breach
 - Mixed signals with no dominant direction
 - High-uncertainty environment (VIX > 30, SPY down >2%)
+- **A winning position in an intact uptrend** — hold it; do not trim on high RSI or a minor score dip
+- **Trendless / choppy market** (SPY oscillating around its 50-day SMA) — default to no action; trend-following has no edge without a trend, and forcing trades here produces whipsaw losses

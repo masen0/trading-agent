@@ -17,14 +17,16 @@ For a small account like this (~$500 Agentic account), every dollar matters more
 
 ### Sizing Rules
 
-| Conviction Level | Max Position Size (of available buying power) |
-|---|---|
-| High conviction (score 16–20; see decision framework) | 40% of available buying power |
-| Medium conviction (score 12–15) | 25% of available buying power |
-| Low conviction (score 8–11) | 10% of available buying power |
-| Below threshold (score < 8) | No trade |
+Position size is tied to the composite score. Sizing bands align exactly with the decision zones in `07_decision_framework.md` — a new buy requires a score of at least 14.
 
-**Example**: $200 buying power, medium conviction → max $50 trade. This matches the $50 increment used in the dip-buy ladder.
+| Conviction Level | Score | Max Position Size (of available buying power) |
+|---|---|---|
+| High conviction (Strong Buy) | 17–20 | 40% of available buying power |
+| Medium conviction (Buy) | 14–16 | 25% of available buying power |
+| Starter (momentum-breakout exception only) | 11–13 with a confirmed 52-week-high breakout on volume (see `07_decision_framework.md`) | 10% of available buying power |
+| No new buy | < 14 (and not a breakout) | No trade |
+
+**Example**: $200 buying power, medium-conviction buy (score 15) → max $50 trade.
 
 ### Hard Limits
 
@@ -34,56 +36,69 @@ For a small account like this (~$500 Agentic account), every dollar matters more
 - **Single stock max**: No more than 25% of total portfolio in any single stock (at cost)
 - **New position minimum**: $20 (below this, transaction costs and slippage are proportionally too large)
 
-### Adding to Existing Winners vs. Losers
+### Adding to a Position — Winners Only
 
-**Adding to winners (pyramid up)**:
-- Only add if the stock is above your average cost AND above the 50-day SMA
-- Limit adds to 50% of original position size (avoid overweighting late entries at higher prices)
+Consistent with the trend-following strategy (`00_overview.md`), you add ONLY to winners, never to losers.
 
-**Adding to losers (averaging down)**:
-- Only if ALL of the following are true:
-  1. The original thesis is still intact (re-validate from fundamentals)
-  2. The decline is due to market/sector weakness, not company-specific bad news
-  3. The stock is not in a technical breakdown (still above 200-day SMA or clearly oversold RSI < 30)
-  4. You have conviction to hold for at least 30 more days
-- Maximum one averaging-down add per position
+**Adding to winners (pyramid up)** — permitted when ALL are true:
+- The stock is above your average cost (the position is already working)
+- The stock is above a rising 50-day SMA (the trend is intact)
+- The add is ≤ 50% of the original position size (avoid overweighting late entries at higher prices)
+- The composite score still qualifies as a buy (≥ 14)
+
+**Adding to losers (averaging down)** — FORBIDDEN.
+- If a position is below your cost, the trend thesis is failing. Do not add under any circumstances.
+- The correct actions on a losing position are only: hold to the pre-set stop, or exit. Never add.
+- Rationale: averaging down inverts the trend-following asymmetry — it grows your losers and shrinks the capital available for winners. This was the primary driver of losses in the 2026-07-13 week.
 
 ---
 
-## Stop-Loss Rules
+## Exit Rules — Consolidated (single source of truth)
 
-### Setting Stop-Losses
+Every exit in this system is one of the types below. All other skills files refer here for exact mechanics. All price triggers are evaluated on a **closing** basis (not an intraday wick), so normal noise does not shake you out.
 
-Use ATR (14-day) to set dynamic stop-loss distances:
+The governing principle (see `00_overview.md`): **losers are cut fast at a pre-set stop; winners are exited only by a trailing stop or a genuine trend break.** Never sell a healthy, trending position on high RSI, a one-point score drop, or because it is "up a lot."
+
+### A. Pre-set stop (for losers) — set at entry, never widened
+
+The initial stop, fixed at the moment you enter, using ATR (14-day):
 
 | Conviction | Stop Distance |
 |---|---|
 | High conviction | 2.5× ATR below entry price |
 | Medium conviction | 2.0× ATR below entry price |
-| Low conviction | 1.5× ATR below entry price |
+| Starter (breakout) | 1.5× ATR below entry price |
 
-**Minimum stop distance**: Always at least 5% below entry (don't get shaken out by normal noise).
-**Maximum stop distance**: Never more than 20% below entry. AI/tech stocks in this universe can move 8–15% in a single session; a 15% ceiling would stop out fundamentally intact positions on normal volatility.
+- **Floor**: at least 5% below entry (don't get shaken out by normal noise)
+- **Ceiling**: never more than 20% below entry. AI/tech names here can move 8–15% in a session; a tighter ceiling would stop out intact positions on normal volatility.
+- **Trigger**: price closes below the stop → exit immediately, no deliberation. Never move a stop lower to "give it room" — the stop only ever moves up (see trailing stop).
 
-### Stop-Loss Triggers (Execute Without Hesitation)
+### B. Trailing stop (for winners) — locks in gains as the trend runs
 
-These are pre-decided rules — do not deliberate when they're hit:
+Once a position is a winner, the stop ratchets up and is never lowered:
 
-1. **Price stop**: Stock closes below stop price (calculated at entry using ATR method above)
-2. **Thesis stop**: Original investment thesis is broken by a material event (earnings miss + guidance cut, major negative news, competitor disruption)
-3. **Time stop**: If a position is flat to down >5% after 20 trading days with no clear catalyst approaching, reassess and consider exiting to redeploy capital
+| Unrealized Gain | Action |
+|---|---|
+| +20% | Move stop up to breakeven (cost basis) |
+| +40% | Trail stop to 15% below current price (locks in ≥25% profit) |
+| +75% | Take 25–33% off the table (partial profit); trail the remainder at 20% below current price |
 
-### Trailing Stops for Winners
+### C. Trend-break exit (for winners whose trend fails before a trailing stop engages)
 
-Once a position is up >20%:
-- Move stop to breakeven (cost basis)
+- Price closes below its 50-day SMA on above-average volume (primary trend-break signal; see `03_technical.md`)
+- Optional confirmation: a bearish MACD divergence alongside the break — never on its own
 
-Once a position is up >40%:
-- Trail stop at 15% below current price (locks in minimum 25% profit)
+### D. Thesis / event stops (fundamental invalidation, any position)
 
-Once a position is up >75%:
-- Consider taking 25–33% off the table (partial profit)
-- Trail remaining with 20% trailing stop
+- **Thesis stop**: the original thesis is broken by a material event (earnings miss + guidance cut, major negative news, competitor disruption)
+- **Earnings gap-down**: position gaps down >8% on earnings day on above-average volume — exit before the next session
+- **Time stop**: flat to down >5% after 20 trading days with no catalyst approaching — exit to redeploy capital
+
+### E. Portfolio-driven exits (see `07_decision_framework.md` for full conditions)
+
+- **Sector ETF breakdown**: the sector's ETF closes below its 50-day SMA on high volume — reduce exposure across that sector
+- **Rebalancing trim**: sector concentration >40% and a better-diversifying opportunity exists
+- **Opportunity swap**: a holding scores ≤ 10 and a clearly stronger (≥16) alternative exists
 
 ---
 
@@ -93,8 +108,8 @@ Once a position is up >75%:
 
 | Scenario | Response |
 |---|---|
-| Single position down >12% | Mandatory review — re-validate thesis or exit |
-| Single position down >20% | Exit unless extremely high conviction with clear catalyst near-term |
+| Single position down >12% | Mandatory review — confirm the pre-set stop is in place; do not add |
+| Single position down >20% | The pre-set stop (max 20% below entry) should already have exited this. If still held, exit now — no "high conviction" exception. Holding losers past the stop is forbidden. |
 | Total portfolio down >15% from peak | Pause all new buys; focus on stops; reassess market regime |
 | Total portfolio down >25% from peak | Emergency review — exit weakest positions; raise cash |
 
@@ -119,7 +134,9 @@ Pause and do NOT open new positions if ANY of the following are true:
 - [ ] The stock already had a trade executed today (once-per-day-per-symbol rule)
 - [ ] Available buying power would drop below $20 after the trade
 - [ ] The trade would put any sector above 40% of total portfolio
-- [ ] The signal score is below 8 (see `07_decision_framework.md`)
+- [ ] The signal score is below 14 (the minimum for a new buy; see `07_decision_framework.md`) — except a confirmed momentum breakout, which may enter at ≥11
+- [ ] The stock is trading below its rising 50-day SMA (trend filter — never buy a downtrend)
+- [ ] The symbol was sold at a loss in the last 5 trading days without a confirmed reversal (re-entry lockout)
 
 ---
 

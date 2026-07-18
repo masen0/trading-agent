@@ -54,14 +54,14 @@ RS = gain / loss
 RSI = 100 - (100 / (1 + RS))
 ```
 
-| RSI Level | Signal |
+| RSI Level | Signal (trend-following interpretation) |
 |---|---|
-| > 70 | Overbought — trim signal (especially if >10% above 50-day SMA); strong momentum may still push higher |
-| 60–70 | Mildly overbought — caution for new buys; acceptable to hold existing positions |
-| 40–60 | Neutral |
-| 30–40 | Approaching oversold — monitor for entry; thesis re-check required |
-| < 30 | Oversold — consider adding if thesis intact and no fundamental breakdown |
-| < 20 | Deeply oversold — strong add signal if fundamentals solid; could also mean structural breakdown |
+| > 70 | Overbought — NOT a sell signal in a confirmed uptrend. Strong trends stay overbought for weeks. Do not trim a healthy winner on high RSI alone; let the trailing stop do the work. Only relevant as a caution against *initiating* a brand-new position at an extended price. |
+| 60–70 | Strong momentum — healthy for an existing uptrend position. Acceptable for a new entry if the trend is confirmed. |
+| 40–60 | Neutral. |
+| 30–40 | Weak momentum — if the stock is below its 50-day SMA this confirms a downtrend; do NOT treat as a buy. |
+| < 30 | Oversold — in a downtrend this is a falling knife, NOT a buy. A low RSI in a downtrend means the trend is strong to the downside. Only meaningful as a bullish signal if it accompanies a *confirmed* reversal (price reclaiming the 50-day SMA). |
+| < 20 | Deeply oversold — almost always signals a structural breakdown, not an opportunity. Avoid. |
 
 **Important**: RSI divergence is a high-value signal:
 - Price makes new high but RSI makes lower high → bearish divergence → consider trimming
@@ -153,14 +153,15 @@ Assign after computing all indicators:
 
 ## Quick Reference: Ideal Entry Conditions
 
-For a new BUY:
-- Price is above 50-day SMA (uptrend filter)
-- RSI between 30–60 (not overbought, not in freefall)
+For a new BUY (trend confirmation required):
+- Price is above a rising 50-day SMA (uptrend filter — non-negotiable)
+- RSI between 40–65 (momentum present, trend confirmed — do NOT buy sub-40 weakness)
 - MACD histogram expanding positively, or just crossed bullish
 - Volume on recent up days exceeds volume on recent down days
 
-For a TRIM or SELL:
-- RSI > 70 with price >15% above 50-day SMA
-- Bearish MACD divergence
-- Price breaking below 50-day SMA on above-average volume
-- Price touches upper Bollinger Band on declining volume
+For an EXIT (trend break, not mean-reversion):
+- Price closes below the 50-day SMA on above-average volume (the trend has broken — this is the primary exit)
+- The ATR-based stop-loss or trailing stop is hit (see `06_risk_management.md`)
+- Bearish MACD divergence AS CONFIRMATION alongside a trend break — not on its own
+
+Do NOT exit on: high RSI alone, price touching the upper Bollinger Band, or a position simply being "up a lot." In an uptrend these are signs of strength, not reasons to sell. Winners are exited by the trailing stop.

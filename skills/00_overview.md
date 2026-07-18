@@ -17,6 +17,23 @@ This agent is process-driven, not signal-chasing. The goal is not to predict the
 
 ---
 
+## Strategy — Trend-Following (the ONE philosophy)
+
+This agent runs a **single, coherent trend-following strategy**. Every rule in every skills file must serve it. Do not mix in mean-reversion behavior (buying weakness / selling strength) — combining the two guarantees buying high and selling low.
+
+The four non-negotiable tenets:
+
+1. **Enter strength, not weakness.** Only buy stocks in a confirmed uptrend (price above a rising 50-day SMA). Never buy a falling knife just because it looks "cheap" or oversold. A low price in a downtrend is not a discount — it is the trend working against you.
+2. **Cut losers fast, at a pre-set stop.** Losses are kept small and mechanical. When a stop is hit, exit without deliberation. This is the only way the math works.
+3. **Let winners run.** Do NOT sell a healthy, trending position just because it is "up a lot," RSI is high, or the score ticked down a point. Trends persist far longer than they feel like they should. Winners are exited by a **trailing stop**, not by a discretionary "take profit" impulse.
+4. **Never average down.** Adding to a losing position is the single most account-destroying behavior for a trend-follower. If a position is below your cost, the trend thesis is already failing — you add to winners, never to losers.
+
+**Why this matters (the asymmetry):** trend-following is not about being right often. It is about small losses and large gains. You will have many small losing trades and a few large winners, and the winners pay for everything. If you cut winners early (to "lock in gains") and hold losers (hoping they "come back"), you invert the asymmetry and guarantee a losing system — which is exactly what a mixed strategy produces.
+
+**Consequence for a choppy/sideways market:** when there is no clear trend (the market oscillating around its 50-day SMA), trend-following produces whipsaw losses. The correct response is **to trade less, not more** — most sessions in a trendless regime should end in "no action."
+
+---
+
 ## Skills Files — What They Cover
 
 | File | Purpose |
@@ -33,7 +50,7 @@ This agent is process-driven, not signal-chasing. The goal is not to predict the
 
 ---
 
-## Session Workflow (Run Every Hour, 9:35am–3:35pm ET)
+## Session Workflow (Runs 2× daily: 9:35am & 12:35pm ET)
 
 ### Phase 1 — Context (do once per session, ~2 min)
 1. Check market regime: Is the broad market (SPY, QQQ) up or down today? By how much?
@@ -79,19 +96,22 @@ Always establish market regime at the start of the session:
 
 | Regime | Conditions | Posture |
 |---|---|---|
-| **Bull — Strong** | SPY above 50-day MA, VIX < 18 | Full aggression; buy dips, let winners run |
+| **Bull — Strong** | SPY above a rising 50-day MA, VIX < 18 | Full aggression; buy strength/breakouts, let winners run |
 | **Bull — Cautious** | SPY above 50-day MA, VIX 18–25 | Selective; prefer quality; smaller position sizes |
 | **Transitional** | SPY near 50-day MA, VIX 25–30 | Defensive; require stronger signals; raise cash threshold |
 | **Bear** | SPY below 50-day MA, VIX > 30 | Minimal new positions; prioritize stop-losses and capital preservation |
 
 In a Bear regime: do not open new positions. Focus on protecting existing ones.
 
+**Trendless / choppy override (independent of VIX):** whenever SPY is oscillating around its 50-day SMA with no clear direction — even at a low VIX — treat the market as trendless. Trend-following has no edge without a trend, so the default is **no new entries**; only stop-loss and trailing-stop exits fire. This condition is not captured by VIX alone (the 2026-07-13 week was choppy at VIX ~18), so judge it from SPY's price structure, not just the fear gauge.
+
 ---
 
 ## Anti-Patterns to Avoid
 
 - **FOMO buying**: Do not chase a stock that already moved >5% today without a clear catalyst you missed earlier
-- **Revenge trading**: Do not re-enter a position immediately after a stop-loss; wait at least one session
-- **Over-trading**: Each symbol should be traded at most once per day (enforced by order history check)
-- **Thesis drift**: Do not hold a stock just because you already own it; re-validate the thesis every session
-- **Averaging down blindly**: Only add to a losing position if the original thesis is intact AND fundamentals still support it
+- **Averaging down**: Never add to a position that is below your cost. This is forbidden, not discretionary. A losing position means the trend thesis is failing.
+- **Re-entry whipsaw**: If a symbol was sold at a loss within the last 5 trading days, do NOT re-buy it unless price has reclaimed its 50-day SMA on above-average volume OR shows a confirmed bullish RSI divergence. "It's cheaper now" is not a reason.
+- **Cutting winners early**: Do not sell a healthy, trending position to "lock in gains" on a high RSI or a one-point score drop. Winners are exited by trailing stops only.
+- **Over-trading in a trendless market**: When there is no clear market trend, the default is no action. Each symbol traded at most once per day (enforced by order history check); most sessions should produce zero trades.
+- **Thesis drift**: Do not hold a stock just because you already own it; re-validate the trend and thesis every session.
