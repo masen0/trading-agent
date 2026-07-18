@@ -18,7 +18,9 @@ At the start of each session, use the available Robinhood MCP tool for fetching 
 
 ---
 
-## Tier 2 — Core Watchlist (Quick Screen Every Session; Deep Analysis on Signal or >3% Move)
+## Tier 2 — Watchlist (All Screened Every Session — Sectors Treated Equally)
+
+Every name below is screened each session with **equal priority**. The sector sub-groupings exist only for (a) AI-angle context and (b) sector-concentration mapping in `06_risk_management.md`. They do **NOT** imply any screening order. What advances to deep analysis is decided by **signal strength** (see Screening Method at the end of this file), never by sector or position in this list.
 
 ### Memory & Storage
 | Ticker | Company | AI Angle |
@@ -93,8 +95,6 @@ At the start of each session, use the available Robinhood MCP tool for fetching 
 
 ---
 
-## Tier 3 — Extended Watchlist (Scan Weekly or on Specific Catalysts)
-
 ### Power & Energy (AI Data Centers Are Power-Hungry)
 | Ticker | Company | AI Angle |
 |---|---|---|
@@ -117,13 +117,15 @@ At the start of each session, use the available Robinhood MCP tool for fetching 
 
 ---
 
-## Screening Priority Order
+## Screening Method (sector-neutral)
 
-Each session, screen in this order:
-1. Tier 1 (always): whatever symbols are returned by `get_equity_positions` with quantity > 0
-2. Tier 2 — Memory & Storage: MU, SNDK, WDC, SKHY
-3. Tier 2 — Chips & Equipment: NVDA, AMD, AVGO, ARM, AMAT, LRCX, KLAC, ASML, MRVL
-4. Tier 2 — Mega-cap: GOOGL, MSFT, META, AMZN, AAPL, TSLA
-5. Tier 2 — Software/Cloud: PLTR, SNOW, DDOG, PANW, CRWD, NOW, CRM, ORCL, CRWV, NET
-6. Tier 2 — Hardware: SMCI, DELL, VRT
-7. Tier 3: only on specific catalyst or weekly cycle (Power & Energy incl. GEV; Space & Connectivity incl. SPCX)
+Two tiers only:
+- **Tier 1 — Holdings**: every symbol currently owned (`get_equity_positions`, quantity > 0). Always deep-analyzed each session — primarily to check exit conditions (stops, trend breaks).
+- **Tier 2 — Watchlist**: every other name in this file, screened with **equal priority regardless of sector**.
+
+Each session:
+1. **Quick-screen ALL of Tier 2 first** (cheap — just pull % change vs. previous close and volume for each). Complete this across every sector *before* committing budget to any deep analysis, so no sector is skipped for being lower on a list.
+2. **Flag by signal, not by sector** — a name advances to deep analysis only if it trips a Phase-2 screen trigger (`00_overview.md`): >3% move vs. previous close, volume >2× average, RSI extreme, 50/200-day SMA cross, or a sector-ETF move.
+3. **When multiple names flag and budget is limited, prioritize by signal strength, not sector.** Do not spend the whole deep-analysis budget on one sector — if flagged names span several sectors, ensure representation across them before going deep on multiple names from the same sector.
+
+> This replaces the old sector-ordered priority list, which biased attention toward whichever sectors appeared first (a contributor to over-concentration in memory/semis). Sector position in this file now carries **no** weight; only live signals do.
