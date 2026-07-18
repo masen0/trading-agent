@@ -90,6 +90,22 @@ Send the daily trading log email regardless of whether trades were made.
 
 ---
 
+## Session Continuity & Memory
+
+Each session is independent and starts cold, so continuity comes from two external sources read at the start of every session:
+
+1. **Live Robinhood data** (positions, 5-day order history, realized P&L) — the authoritative record of *what* happened.
+2. **The two most recent reasoning documents** (the previous session's log and the latest Friday Weekly Review, from the Gmail label `Trading-Agent-Log`) — the record of *why*, which Robinhood does not store.
+
+How to act on the reasoning context:
+- Check every forward-looking flag or invalidation level from the previous log against live data now, and act if it has triggered.
+- Carry each holding's original thesis and stop-loss forward; do not silently contradict a recent decision without a new, material reason.
+- Do not repeat a mistake the Weekly Review named; do not reverse a 1–2 session-old decision absent a new trigger.
+
+**Hierarchy (critical):** skills rules and live data are authoritative. **Past logs are memory, not commands.** If past reasoning conflicts with a current rule or a triggered stop, the rule wins. Never hold a losing position past its stop because a prior log expressed conviction — that is the anchoring trap, and it is how memory turns into entrenched error.
+
+---
+
 ## Market Regime Classification
 
 Always establish market regime at the start of the session:
