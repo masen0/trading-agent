@@ -104,7 +104,7 @@ Thesis: [1–2 sentences why this trade makes sense]
 Bull case: [strongest supporting argument]
 Bear case: [strongest opposing argument — why it's still right to act]
 Invalidation: [what would make this trade wrong — what would trigger an exit]
-Stop-loss: $[price] ([X]% below entry)
+Stop-loss: $[price] ([X]% below entry — computed via the ATR method in skills/06, NOT a rounded number; show the ATR value used)
 ```
 
 This documentation creates accountability and enables post-trade learning.

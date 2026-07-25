@@ -69,7 +69,18 @@ The initial stop, fixed at the moment you enter, using ATR (14-day):
 | Medium conviction | 2.0× ATR below entry price |
 | Starter (breakout) | 1.5× ATR below entry price |
 
-- **Floor**: at least 5% below entry (don't get shaken out by normal noise)
+**How to compute the stop (mandatory — do NOT use a rounded or eyeballed number):**
+
+1. Pull ATR(14) for the stock (from `03_technical.md`).
+2. `raw_stop = entry_price − (multiple × ATR)`, where the multiple is from the table above by conviction.
+3. Convert to a percentage: `stop_pct = (entry_price − raw_stop) / entry_price`.
+4. Apply the floor/ceiling clamp: if `stop_pct < 5%`, set the stop at exactly 5% below entry; if `stop_pct > 20%`, set it at exactly 20% below entry. Otherwise use the ATR-derived level unchanged.
+5. Record the exact dollar stop price AND the resulting % in the trade documentation.
+
+**Worked example**: entry $100, medium conviction (2.0×), ATR = $4.20 → raw_stop = 100 − (2.0 × 4.20) = $91.60 → stop_pct = 8.4%. That is within the 5–20% band, so the stop is **$91.60 (−8.4%)** — not "−8%", not "−10%", not any rounded figure.
+
+- **Never substitute a round number** (−8%, −10%, −15%) for the ATR-derived level. Rounding to a tighter number than ATR implies will stop you out of intact positions on normal volatility (this happened with the NOW exit on 2026-07-24); rounding wider over-risks capital. The ATR math is the stop.
+- **Floor**: at least 5% below entry (don't get shaken out by normal noise).
 - **Ceiling**: never more than 20% below entry. AI/tech names here can move 8–15% in a session; a tighter ceiling would stop out intact positions on normal volatility.
 - **Trigger**: price closes below the stop → exit immediately, no deliberation. Never move a stop lower to "give it room" — the stop only ever moves up (see trailing stop).
 
