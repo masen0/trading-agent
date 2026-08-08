@@ -120,13 +120,25 @@ Look for:
 
 ## 5. Earnings Calendar
 
-At the start of each week, search: `AI semiconductor earnings this week` and check upcoming earnings for held stocks.
+**Mandatory per-session check for ALL current holdings.** At the start of every session, pull the earnings date for each stock you currently hold — use the available Robinhood MCP earnings-calendar tool (see [Robinhood's tool documentation](https://robinhood.com/us/en/support/articles/trading-with-your-agent/)), falling back to web search if needed. For each holding, compute how many trading days until its next report and flag it:
+
+| Days to earnings | Flag | Action |
+|---|---|---|
+| Reports today or next session (0–1 days) | **HIGH gap risk** | Note it prominently in the log; the position carries binary event risk into the report. This is a proactive warning — the ATR stop still handles the aftermath, but you must not be surprised by it. |
+| 2–3 trading days out | Elevated | Flag in the log; do NOT add to the position (see below) |
+| 4+ trading days out | Normal | No action |
+
+Also, at the start of each week, check the broader calendar (e.g. `AI semiconductor earnings this week`) so upcoming reports across the watchlist are known in advance.
 
 **Earnings risk management:**
 - Do NOT add to a position within 3 trading days of earnings (IV is elevated; risk is binary)
+- Do NOT open a NEW position within 3 trading days of its earnings (`06_risk_management.md` Do-Not-Trade checklist)
 - Consider trimming 25% of oversized positions before earnings to manage event risk
 - After earnings: wait for the initial reaction to settle (usually by end of day) before reacting
 - A beat-and-raise that sells off after initial pop = institutional distribution — consider trimming
+- An earnings gap-down >8% on above-average volume is a hard exit trigger (`06_risk_management.md` Exit Rules — D)
+
+**Why this is mandatory every session:** several positions (DDOG on 2026-08-06; MU/ASML/KLAC/META/AMD in the prior month) were lost to same-day earnings gaps. The stop mechanism handled the aftermath correctly, but proactive per-holding earnings awareness lets you see the gap risk coming rather than only reacting to it.
 
 ---
 
