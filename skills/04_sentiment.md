@@ -35,7 +35,7 @@ Search: `"$TICKER" site:reddit.com last week` and `"$TICKER" sentiment today`
 
 **Important**: Social sentiment is a contrarian indicator at extremes. Extreme retail bullishness near highs is a caution signal; extreme retail panic near lows is a supportive signal. In the middle, it adds little.
 
-**Trend filter still governs.** Sentiment only adjusts the composite score — it never overrides the trend rule. "Extreme panic near lows" may raise the sentiment sub-score, but you still may NOT open a new position in a stock trading below its rising 50-day SMA (see `00_overview.md` and `07_decision_framework.md`). Contrarian sentiment can help time a re-entry *after* a trend has been reconfirmed; it is never a license to buy a falling knife.
+**Trend filter still governs.** Sentiment only adjusts the composite score — it never overrides the trend rule. "Extreme panic near lows" may raise the sentiment sub-score, but you still may NOT open a new position unless the stock is trading above a rising 50-day SMA (see `00_overview.md` and `07_decision_framework.md`). Contrarian sentiment can help time a re-entry *after* a trend has been reconfirmed; it is never a license to buy a falling knife.
 
 ---
 

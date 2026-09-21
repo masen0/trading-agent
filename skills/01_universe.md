@@ -1,6 +1,6 @@
 ---
 file: 01_universe.md
-purpose: Stock universe — which stocks to scan, in what order, and why each is an AI play
+purpose: Stock universe — which stocks are eligible to scan, their sector mappings, and why each is an AI play
 ---
 
 # Stock Universe — AI Beneficiary Watchlist
@@ -20,9 +20,9 @@ If account discovery returns zero or multiple agent-tradable accounts, place no 
 
 ---
 
-## Tier 2 — Watchlist (All Screened Every Session — Sectors Treated Equally)
+## Tier 2 — Watchlist (All Eligible Names Screened Every Session — Sectors Treated Equally)
 
-Every name below is screened each session with **equal priority**. The sector sub-groupings exist only for (a) AI-angle context and (b) sector-concentration mapping in `06_risk_management.md`. They do **NOT** imply any screening order. What advances to deep analysis is decided by **signal strength** (see Screening Method at the end of this file), never by sector or position in this list.
+Every eligible name in the active watchlist categories below is screened each session with **equal priority**. A symbol explicitly marked Research-Only or Currently Ineligible is not screened, ranked, or traded until it becomes eligible. The sector sub-groupings exist only for (a) AI-angle context and (b) sector-concentration mapping in `06_risk_management.md`. They do **NOT** imply any screening order. What advances to deep analysis is decided by **signal strength** (see Screening Method at the end of this file), never by sector or position in this list.
 
 ### Memory & Storage
 | Ticker | Company | AI Angle |
@@ -110,10 +110,25 @@ Every name below is screened each session with **equal priority**. The sector su
 | ANET | Arista Networks | AI data center networking switches; dominant in hyperscaler ethernet |
 | CSCO | Cisco | AI networking and security; Silicon One for hyperscalers |
 
-### Space & Satellite Connectivity
+### Research-Only / Currently Ineligible
 | Ticker | Company | AI Angle |
 |---|---|---|
-| SPCX | SpaceX (Class A) | Starlink connectivity for edge/distributed AI and remote data; AI-driven autonomous launch/landing. Indirect AI play — high growth, high volatility; scan on catalyst. |
+| SPCX | SpaceX (Class A) | Research context only. Do not quick-screen, rank, or buy unless it becomes a listed, liquid instrument that passes every eligibility gate below. |
+
+---
+
+## Canonical Sector and ETF Mapping
+
+Use these mappings consistently for sector-relative strength, sector signals, and portfolio concentration:
+
+- **Semiconductors** — Memory & Storage, Semiconductor Chips, and Semiconductor Equipment; signal proxy `SMH`.
+- **Technology** — AI Software & Applications, Cloud & GPU Infrastructure, Networking, MSFT, AAPL, SMCI, DELL, and HPE; signal proxy `XLK`.
+- **Communication Services** — GOOGL and META; signal proxy `XLC`.
+- **Consumer Discretionary** — AMZN and TSLA; signal proxy `XLY`.
+- **Utilities / Power Producers** — CEG, VST, NRG, and ETR; signal proxy `XLU`.
+- **Industrials / Electrical Infrastructure** — GEV and VRT; signal proxy `XLI`.
+
+Use the bucket above—not an ad hoc alternative—for the 35% sector-concentration limit. A symbol not covered by this mapping is ineligible for a new position until the mapping is versioned here. Industry ETF signals such as `SMH` are analytical proxies; they do not change the concentration bucket.
 
 ---
 
@@ -133,12 +148,12 @@ Failure of any eligibility check means **no new position**. Existing holdings re
 
 Two tiers only:
 - **Tier 1 — Holdings**: every symbol currently owned (`get_equity_positions`, quantity > 0). Always deep-analyzed each session — primarily to check exit conditions (stops, trend breaks).
-- **Tier 2 — Watchlist**: every other name in this file, screened with **equal priority regardless of sector**.
+- **Tier 2 — Watchlist**: every eligible non-holding name in the active watchlist categories, screened with **equal priority regardless of sector**. Research-Only / Currently Ineligible names are excluded.
 
 Each session:
 1. **Quick-screen ALL eligible Tier 2 names first** using the same completed-bar timestamp: daily return, dollar volume, SMA state, distance from 52-week high, and 63-session relative return versus SPY and the mapped sector ETF.
 2. **Flag by signal, not by sector** — a name advances to deep analysis only if it trips a Phase-2 screen trigger (`00_overview.md`) or ranks in the top 20% of the eligible universe on 63-session relative strength. Oversold readings may trigger risk review, but never create a long entry by themselves.
-3. **When multiple names flag and budget is limited, prioritize by signal strength, not sector.** Do not spend the whole deep-analysis budget on one sector — if flagged names span several sectors, ensure representation across them before going deep on multiple names from the same sector.
+3. **Deep-analyze every eligible flagged name.** Signal strength determines processing order, not whether a flagged name is omitted. If a tool or session limit prevents completion, log every unprocessed symbol and prohibit trading it in that session; never silently drop it. Process the strongest signals first while avoiding sector-order bias.
 
 The universe is reviewed monthly. Additions, removals, and sector/theme mappings are version-controlled and take effect prospectively; historical tests must use point-in-time membership to avoid survivorship bias.
 

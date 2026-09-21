@@ -21,8 +21,8 @@ Use first-party company releases and filings, official economic releases, exchan
 
 | Event | Impact | Response |
 |---|---|---|
-| Earnings beat + guidance raise | Strong positive | Consider adding; validate technicals first |
-| Earnings miss + guidance cut | Strong negative | Reassess thesis; consider trimming or exiting |
+| Earnings beat + guidance raise | Strong positive | Treat as a potential add candidate only if every entry/add gate passes |
+| Earnings miss + guidance cut | Strong negative | Verify whether the original thesis is invalidated; execute only the resulting rule in `06_risk_management.md` |
 | Major contract win (government, hyperscaler) | Positive | Validate size and strategic fit before acting |
 | Product launch or tech breakthrough | Positive (if material) | Assess whether it changes competitive position |
 | CEO/CFO departure (unplanned) | Negative | Reassess thesis and risk; do not trade on an unverified headline |
@@ -134,9 +134,9 @@ Also, at the start of each week, check the broader calendar (e.g. `AI semiconduc
 - Do NOT add to a position within 3 trading days of earnings (IV is elevated; risk is binary)
 - Do NOT open a NEW position within 3 trading days of its earnings (`06_risk_management.md` Do-Not-Trade checklist)
 - A logical stop checked only during scheduled sessions does not bound between-session or overnight gap risk. Before earnings, compute the position's percentage of equity and documented event-risk budget.
-- If the position exceeds 10% of account equity, trim it to 10% or less before the report unless a separately backtested earnings-hold rule explicitly permits otherwise.
-- After earnings: wait for the initial reaction to settle (usually by end of day) before reacting
-- A beat-and-raise that sells off after initial pop = institutional distribution — consider trimming
+- If the report is today or the next trading session and the position exceeds 10% of account equity, apply the exact pre-earnings event-risk trim defined in `06_risk_management.md` unless a separately backtested earnings-hold rule explicitly permits otherwise.
+- After earnings: wait for the initial reaction to settle before making a discretionary reassessment; a verified hard exit fires immediately and is not delayed by this waiting rule.
+- A beat-and-raise that sells off after the initial pop is possible institutional distribution — review the thesis and trend, but do not trim without a separate verified exit rule
 - An earnings gap-down >8% on above-average volume is a hard exit trigger (`06_risk_management.md` Exit Rules — D)
 
 **Why this is mandatory every session:** several positions (DDOG on 2026-08-06; MU/ASML/KLAC/META/AMD in the prior month) were lost to same-day earnings gaps. The stop mechanism handled the aftermath correctly, but proactive per-holding earnings awareness lets you see the gap risk coming rather than only reacting to it.

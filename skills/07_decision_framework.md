@@ -17,7 +17,7 @@ A candidate is ineligible for a new long position or an addition to an existing 
 
 1. The selected account and current account state are verified.
 2. Instrument eligibility and liquidity checks in `01_universe.md` pass.
-3. Data-quality and timestamp checks pass, including a valid same-day fundamental result under `02_fundamental.md` for any new or added exposure.
+3. Data-quality and timestamp checks pass, including a valid same-day fundamental result with score at least 3 under `02_fundamental.md` for any new or added exposure.
 4. Market regime permits new long exposure.
 5. Price is above a rising SMA50 and above SMA200.
 6. Earnings are not within three trading days.
@@ -66,7 +66,7 @@ At each session, the fundamental input may reuse the immediately previous sessio
 |---|---|---|
 | 17–20 | **Strong Buy Candidate** | Eligible for the 0.75%-risk band, subject to every hard gate |
 | 14–16 | **Buy Candidate** | Eligible for the 0.50%-risk band, subject to every hard gate |
-| 11–13 | **Weak Buy / Hold** | Hold existing; no new buy |
+| 11–13 | **Weak Buy / Hold** | Hold existing; no new buy except the fully validated breakout exception |
 | 8–10 | **Hold** | No action |
 | 5–7 | **Weak / Review** | Review thesis and trend; score alone cannot change a stop or force a sale |
 | 2–4 | **Exit Candidate** | Seek a verified mechanical or thesis exit trigger |
@@ -78,7 +78,7 @@ For existing positions, the score is diagnostic. Exits are governed by the logic
 
 ## Step 3 — Bull/Bear Internal Debate
 
-Before acting on any score above 13 (buy candidate) or below 7 (exit review), force yourself to argue the opposite case:
+Before acting on any score above 13 (buy candidate) or using a score below 7 to support a discretionary thesis-based exit review, force yourself to argue the opposite case. Mechanical stops and mandatory trend, event-risk, loss-limit, or portfolio-limit actions execute under `06_risk_management.md` and are not delayed or vetoed by this debate.
 
 ### For a BUY signal — argue the bear case:
 - What is the strongest argument that this stock goes DOWN from here?
@@ -88,13 +88,13 @@ Before acting on any score above 13 (buy candidate) or below 7 (exit review), fo
 
 ### For a SELL/TRIM signal — argue the bull case:
 - What is the strongest argument that this stock goes UP from here?
-- Is the current weakness a temporary pullback within an intact uptrend, or a genuine trend break (price closed below a rising 50-day SMA)?
+- Is the current weakness a temporary pullback within an intact uptrend, or the verified primary trend break defined in `06_risk_management.md`?
 - Is the trend still structurally up despite the noise?
 - Is this a mechanical stop/trend-break exit, or an emotional reaction to a red day?
 
 (Note: this debate does not authorize *buying* weakness — the trend filter still forbids new entries below the 50-day SMA. It only governs whether to exit an existing position.)
 
-**Rule**: If a material opposing case remains unresolved, do nothing. Uncertainty is not repaired by arbitrary half-sizing.
+**Rule for discretionary decisions**: If a material opposing case remains unresolved, do nothing. Uncertainty is not repaired by arbitrary half-sizing. This rule never postpones a verified mandatory risk action.
 
 ---
 
@@ -108,15 +108,15 @@ After the bull/bear debate, apply:
 | Score 11–13 AND no material bear argument | Hold; no new buy |
 | Score ≥ 14 BUT strong bear argument remains | Do nothing; unresolved material risk is not repaired by arbitrary half-sizing |
 | Score ≤ 7 AND a verified exit trigger exists | Trim or exit according to `06_risk_management.md` |
-| Score ≤ 7 BUT strong bull counter-argument | Do nothing; hold and re-evaluate next session |
+| Score ≤ 7 BUT strong bull counter-argument AND no verified exit trigger exists | Do nothing; hold and re-evaluate next session |
 | Stop-loss triggered | Exit regardless of score |
-| Do-not-trade checklist triggered | No trade regardless of score |
+| Do-not-trade checklist triggered | No new or added exposure; verified risk-reducing exits still apply |
 
 ---
 
 ## Step 5 — Trade Documentation (Required for Every Trade)
 
-Before placing any order, write (for the email log):
+Before placing any order, calculate and retain the following decision record for inclusion in the post-execution session log:
 
 ```
 Trade: [BUY/SELL] $[amount] of [TICKER]
@@ -134,7 +134,7 @@ Portfolio heat before/after: [X]% / [Y]%
 Order type/session: [type] / [market session]
 ```
 
-This documentation must be written to the append-only ledger before order placement. Update it afterward with preflight results, idempotency reference, broker order ID, fills, fees/slippage, the active logical-stop value, and verified final state.
+After execution—or after the decision not to trade—persist the record in the session log with preflight results, idempotency reference, broker order ID, fills, fees/slippage, the active logical-stop value, and verified final state. Logging occurs after order reconciliation; there is no separate pre-order ledger requirement.
 
 ## Step 6 — Controlled Order Workflow
 
@@ -146,14 +146,14 @@ For any real order:
 4. Generate one unique idempotency reference for the logical order and reuse it only for retries of that same order.
 5. In production `autonomous`, place the order without per-trade human approval only when the approved skills commit matches and all gates pass.
 6. Re-read the broker order until its actual state is known. "Accepted" is not "filled."
-7. After an entry fill, recompute the logical stop from the actual average fill, persist it, and read it back as required by `06_risk_management.md`.
-8. Reconcile positions, buying power, open orders, and the ledger. Any mismatch triggers the operational kill switch.
+7. After an entry fill, recompute the logical stop from the actual average fill and retain it for the post-execution session log as required by `06_risk_management.md`.
+8. Reconcile positions, buying power, and open orders. Any mismatch triggers the operational kill switch. After reconciliation, create the session log, persist the structured state, and read it back. If a new position's stop state cannot be persisted and verified, submit a risk-reducing exit when safely possible and disable further new entries.
 
 ---
 
 ## Step 7 — Post-Session Learning and Change Governance
 
-Once a week (Fridays), before sending the trading log, add a **Weekly Review** section to the email:
+On the final scheduled Friday session of each completed trading week, add one **Weekly Review** section to the session log:
 
 1. Which trades from this week were profitable? What signal patterns led to them?
 2. Which trades lost money? Was the signal score high at entry? What was missed?
@@ -182,7 +182,7 @@ Never optimize a rule on the same trades used to discover the pattern and then r
 **New-position eligibility** (all must be true):
 - Score ≥ 14
 - **Trend filter (non-negotiable)**: the stock itself is above its own *rising* 50-day SMA. Never buy a stock trading below its 50-day SMA, regardless of score — that is a downtrend, and buying it is the falling-knife / averaging-down mistake. A strong fundamental story does NOT override a broken trend.
-- **Re-entry lockout**: if this symbol was sold at a loss within the last 5 trading days, do not re-buy unless price has reclaimed the 50-day SMA on above-average volume OR shows a confirmed bullish RSI divergence.
+- **Re-entry lockout**: if this symbol was sold at a loss within the last 5 trading days, do not re-buy unless price has reclaimed the 50-day SMA on above-average volume as defined in `03_technical.md` OR shows a confirmed bullish RSI divergence. This clears only the lockout; every other hard gate still applies.
 - The deterministic market-regime rules permit new long exposure
 - No earnings within 3 days
 - Symbol not already traded today
@@ -191,23 +191,24 @@ Never optimize a rule on the same trades used to discover the pattern and then r
 
 **Exit triggers** (any one sufficient after its required evidence is verified):
 
-*Exit discipline: losers are cut fast at a pre-set stop; winners are exited only by a trailing stop or a genuine trend break. Do NOT sell a healthy, trending position because RSI is high, it's "up a lot," or the score slipped a point — that is cutting a winner early and inverts the strategy's asymmetry. The exact mechanics of every exit type below are defined in one place — see "Exit Rules — Consolidated" in `06_risk_management.md`.*
+*Exit discipline: losers are cut fast at a pre-set stop; winners are exited only by a trailing stop or an explicitly defined trend, thesis, event-risk, or portfolio-limit rule. Do NOT sell a healthy, trending position because RSI is high, it is "up a lot," or the score slipped a point. The exact mechanics of every exit type below are defined in one place—see "Exit Rules — Consolidated" in `06_risk_management.md`.*
 
 - **Stop-loss breached**: initial stop set at entry using ATR method in `06_risk_management.md`
 - **Trailing stops** (see `06_risk_management.md`): initial stop below +2R, at least breakeven from +2R, and a non-decreasing 3×ATR trail from +3R
-- **Earnings gap down**: position gaps down >8% on earnings day on above-average volume — trim or exit before the next session; do not hold through the subsequent drift expecting recovery
-- **Combined underwater death-cross trigger**: apply the exact verified conditions and minimum 50% trim defined in `06_risk_management.md`; a death cross alone is not an exit
-- **Sector ETF breakdown**: the stock's sector ETF (SMH for semis/memory, XLK for software/mega-cap, XLC for comms) closes below its 50-day SMA on volume >1.5× average — reduce exposure to all holdings in that sector; this signals a sustained rotation, not a one-day event
+- **Earnings gap down**: position gaps down >8% on earnings day on above-average volume — exit the full available quantity at the first scheduled session where verified
+- **Combined underwater death-cross trigger**: apply the exact verified conditions and exact 50% trim defined in `06_risk_management.md`; a death cross alone is not an exit
+- **Pre-earnings event-risk trim**: reduce an oversized holding to 10% of equity or less using the exact rule in `06_risk_management.md`
 - Thesis-breaking news event (earnings miss + guidance cut, major competitive loss, regulatory action)
 - Position held > 60 days and fundamental thesis no longer valid
-- **Rebalancing trim**: sector concentration exceeds the 35% hard limit — reduce the lowest-ranked exposure only after verifying tax, order, and trend context; a new opportunity is not required to correct a breach
+- **Rebalancing trim**: sector concentration exceeds 35% — follow the deterministic lowest-score-first reduction in `06_risk_management.md` until the sector is at or below 35%
 
 **Review triggers** (not sufficient by themselves to sell):
 
 - Score drops to ≤5 on a position held for more than 5 days
 - A current holding scores ≤10 while an eligible alternative scores ≥16
+- The holding's canonical sector proxy from `01_universe.md` closes below its 50-day SMA on volume >1.5× the median of the prior 30 completed sessions; block new exposure in that mapped bucket, but do not sell without a separate exit or portfolio-limit trigger
 
-For either review, sell only when the holding also has a verified exit or portfolio-risk trigger.
+For any review above, sell only when the holding also has a verified exit or portfolio-risk trigger.
 
 **Default HOLD / no new action**:
 - Score 8–13 with no stop-loss breach

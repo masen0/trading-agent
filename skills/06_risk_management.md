@@ -67,7 +67,7 @@ Consistent with the trend-following strategy (`00_overview.md`), you add ONLY to
 
 **Adding to losers (averaging down)** — FORBIDDEN.
 - If a position is below your cost, the trend thesis is failing. Do not add under any circumstances.
-- The correct actions on a losing position are only: hold to the pre-set stop, or exit. Never add.
+- Manage a losing position only under the existing hold, trim, and exit rules in this file. Never add.
 - Rationale: averaging down inverts the trend-following asymmetry — it grows your losers and shrinks the capital available for winners. This was the primary driver of losses in the 2026-07-13 week.
 
 ---
@@ -77,9 +77,11 @@ Consistent with the trend-following strategy (`00_overview.md`), you add ONLY to
 Every exit in this system is one of the types below. All other skills files refer here for exact mechanics. **Logical stops and closing-basis trend exits are different controls:**
 
 - The initial or trailing logical stop is persisted by the agent and evaluated at the start of every scheduled session. It is not a live broker-side order and does not trigger between sessions.
-- A trend-break rule based on the daily close uses the latest official completed bar available at either scheduled session and is executed in that regular-hours session when verified.
+- A trend-break rule based on the daily close uses the latest official completed bar available at the current scheduled session and is executed in that regular-hours session when verified.
 
-The governing principle (see `00_overview.md`): **losers are cut fast at a pre-set stop; winners are exited only by a trailing stop or a genuine trend break.** Never sell a healthy, trending position on high RSI, a one-point score drop, or because it is "up a lot."
+The governing principle (see `00_overview.md`): **losers are cut fast at a pre-set stop; winners are exited only by a trailing stop or an explicitly defined trend, thesis, event-risk, or portfolio-limit rule.** Never sell a healthy, trending position on high RSI, a one-point score drop, or because it is "up a lot."
+
+When multiple exit rules apply simultaneously, a full-exit rule takes precedence over a partial trim. Submit no overlapping duplicate sell orders; recompute remaining quantity and portfolio limits after each verified fill before applying another rule.
 
 ### A. Pre-set stop (for losers) — set at entry, never widened
 
@@ -104,7 +106,7 @@ The initial stop, fixed at the moment you enter, using ATR (14-day):
 - **Never substitute a round number** (−8%, −10%, −15%) for the ATR-derived level. Rounding to a tighter number than ATR implies will stop you out of intact positions on normal volatility (this happened with the NOW exit on 2026-07-24); rounding wider over-risks capital. The ATR math is the stop.
 - **Floor**: at least 5% below entry (don't get shaken out by normal noise).
 - **Ceiling**: never more than 20% below entry. AI/tech names here can move 8–15% in a session; a tighter ceiling would stop out intact positions on normal volatility.
-- **Execution**: after an entry fills, calculate the final stop from the actual average fill, write it to the append-only ledger, and include it in the session log. At the start of each scheduled session, read the persisted stop and compare it with a fresh executable quote before any new-entry analysis. If price is at or below the stop, sell the full `shares_available_for_sells` at market in regular hours and verify the resulting order and position state.
+- **Execution**: after an entry fills, calculate the final stop from the actual average fill and include it in the post-execution session log and structured state. At the start of each scheduled session, read the persisted stop and compare it with a fresh executable quote before any new-entry analysis. If price is at or below the stop, sell the full `shares_available_for_sells` at market in regular hours and verify the resulting order and position state.
 - Because the logical stop is checked only during scheduled sessions, execution can occur materially below the stop after a fast move or gap. The planned loss and portfolio-heat calculations are risk budgets, not guarantees. Log the stop price, observed price, fill price, and slippage through the stop.
 - Never move a stop lower to "give it room." A new higher trailing stop must be durably written before treating it as active. If an entry fills but its logical stop cannot be persisted and read back, submit a risk-reducing exit and disable new entries pending review.
 
@@ -122,20 +124,22 @@ Do not take partial profit at an arbitrary percentage gain unless a separately t
 
 ### C. Trend-break exit (for winners whose trend fails before a trailing stop engages)
 
-- Price closes below its 50-day SMA on above-average volume (primary trend-break signal; see `03_technical.md`)
-- **Combined underwater death-cross trigger**: the 20-day SMA crosses below the 50-day SMA while the position is already more than 10% below average cost — trim at least 50%. A death cross by itself is bearish context, not an exit; both the fresh cross and the greater-than-10% loss must be verified.
+- **Primary trend break**: price closes below its 50-day SMA on above-average completed-day volume — sell the full `shares_available_for_sells` (see `03_technical.md`)
+- **Combined underwater death-cross trigger**: the 20-day SMA crosses below the 50-day SMA while the position is already more than 10% below average cost — sell exactly 50% of `shares_available_for_sells`. A death cross by itself is bearish context, not an exit; both the fresh cross and the greater-than-10% loss must be verified. A simultaneous full-exit trigger takes precedence.
 - Optional confirmation: a bearish MACD divergence alongside the break — never on its own
 
 ### D. Thesis / event stops (fundamental invalidation, any position)
 
-- **Thesis stop**: the original thesis is broken by a material event (earnings miss + guidance cut, major negative news, competitor disruption)
-- **Earnings gap-down**: position gaps down >8% on earnings day on above-average volume — exit before the next session
+- **Thesis stop**: when verified evidence shows the original thesis is broken by a material event (earnings miss + guidance cut, major negative news, competitor disruption), sell the full `shares_available_for_sells`
+- **Earnings gap-down**: position gaps down >8% on earnings day on above-average volume — exit the full `shares_available_for_sells` at the first scheduled session where the condition is verified
+- **Pre-earnings event-risk trim**: when a holding reports today or the next trading session and exceeds 10% of current account equity, sell the minimum quantity required to bring its market value to 10% of equity or less. This is an explicit event-risk exception to the normal let-winners-run rule.
 - **Time review**: after 20 trading days without a new closing high, review opportunity cost and trend quality. Time alone is not an automatic exit unless a tested time-stop rule is adopted.
 
-### E. Portfolio-driven exits (see `07_decision_framework.md` for full conditions)
+### E. Portfolio controls and reviews (see `07_decision_framework.md` for full conditions)
 
-- **Sector ETF breakdown**: the sector's ETF closes below its 50-day SMA on high volume — reduce exposure across that sector
-- **Rebalancing trim**: sector concentration exceeds the 35% hard limit
+- **Sector ETF breakdown**: the canonical proxy in `01_universe.md` closes below its 50-day SMA on volume greater than 1.5× the median of the prior 30 completed sessions — block new exposure in that mapped bucket and review its holdings; this condition alone does not authorize a sale
+- **Rebalancing trim**: when sector concentration exceeds 35%, rank the sector's holdings by current composite score ascending, breaking ties by larger market value first, and sell from that order only until sector exposure is at or below 35%
+- **Unreconciled loss-limit breach**: if a position is more than 20% below average cost and remains open, sell the full `shares_available_for_sells`; the logical stop should already have prevented this, so also treat it as an operational exception requiring review
 - **Opportunity review**: a holding scores ≤10 and a clearly stronger (≥16) alternative exists; this is not an exit unless a separate verified exit or portfolio-risk trigger also applies
 
 ---
@@ -147,7 +151,7 @@ Do not take partial profit at an arbitrary percentage gain unless a separately t
 | Scenario | Response |
 |---|---|
 | Single position down >12% | Mandatory review — confirm the pre-set logical stop is persisted; do not add |
-| Single position down >20% | The pre-set stop (max 20% below entry) should already have exited this. If still held, exit now — no "high conviction" exception. Holding losers past the stop is forbidden. |
+| Single position down >20% | Apply the full-exit unreconciled loss-limit rule above — no "high conviction" exception. Holding losers past the stop is forbidden. |
 | Total portfolio down >5% from the persisted high-water mark | Halve new-trade risk budgets |
 | Total portfolio down >8% from the high-water mark | Pause all new buys; manage existing stops only |
 | Total portfolio down >12% from the high-water mark | Disable autonomous mode and require a full strategy and data-integrity review before new risk |
@@ -156,7 +160,7 @@ Adjust the high-water mark for deposits and withdrawals so cash flows are not mi
 
 ### Rebalancing Authority
 
-The agent has full authority to sell any current holding — including Tier 1 positions — to rebalance the portfolio, free up capital for a better opportunity, or reduce concentration risk. No holding is permanent or protected. Evaluate each position on its current merits every session.
+The agent has full authority to sell any current holding—including Tier 1 positions—when a verified exit rule or portfolio-limit correction in this file requires it. A stronger alternative or desire to free capital is only an opportunity review and cannot authorize a sale by itself. No holding is exempt from the defined exit rules.
 
 ### Correlation Risk
 
@@ -169,7 +173,7 @@ Before adding any new position, check the sector distribution of current holding
 
 ### Do Not Trade Checklist
 
-Pause and do NOT open new positions if ANY of the following are true:
+Pause and do NOT open a new position or add to an existing one if ANY of the following are true:
 - [ ] VIX > 30 (market-wide fear; wait for stabilization)
 - [ ] SPY is down >2% today without a recovery (broad risk-off)
 - [ ] Earnings for the stock are within 3 trading days
@@ -177,7 +181,7 @@ Pause and do NOT open new positions if ANY of the following are true:
 - [ ] Available buying power would breach the cash-reserve rule after the trade
 - [ ] The trade would breach the cash, single-stock, sector, common-theme, correlated-exposure, or portfolio-heat limits
 - [ ] The signal score is below 14 (the minimum for a new buy; see `07_decision_framework.md`) — except a confirmed momentum breakout, which may enter at ≥11
-- [ ] The stock is trading below its rising 50-day SMA (trend filter — never buy a downtrend)
+- [ ] The stock is not trading above a rising 50-day SMA (trend filter — never buy a downtrend or a stock whose medium-term trend is not rising)
 - [ ] The symbol was sold at a loss in the last 5 trading days without a confirmed reversal (re-entry lockout)
 - [ ] Required market/account data is stale, incomplete, internally inconsistent, or from different bar cutoffs
 - [ ] A pending or filled same-side order could duplicate the intended exposure
@@ -205,5 +209,5 @@ Risk-reducing actions must still avoid duplicate orders and must use the verifie
 |---|---|
 | < 5 trading days | Check thesis validity and stop-loss; no bias toward exiting |
 | 5–20 trading days | Re-validate thesis with fresh fundamental + technical check |
-| > 20 trading days | Full re-evaluation: would you buy this position today at current price? If no, exit |
-| > 60 trading days | Mandatory thesis statement review; has the AI narrative evolved? Is stock still well-positioned? |
+| > 20 trading days | Full opportunity-cost and trend review; the answer to “would you buy today?” is diagnostic only and cannot authorize an exit without a separate verified trigger |
+| > 60 trading days | Mandatory thesis statement review; exit only if verified evidence shows thesis invalidation or another defined exit trigger fires |

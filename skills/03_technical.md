@@ -121,9 +121,10 @@ Band_width = (Upper_band - Lower_band) / SMA20
 
 **Signals:**
 - Completed-day volume versus the median of the prior 30 completed sessions. Intraday volume may be compared only with the median volume at the same elapsed session time; never compare partial-day volume directly with full-day average volume.
-- Volume > 2× average on an up day: strong institutional buying — bullish confirmation
-- Volume > 2× average on a down day: strong institutional selling — bearish signal
-- Price up significantly on below-average volume: weak move — may not sustain
+- Throughout these skills, **above-average completed-day volume** means greater than the median of the prior 30 completed sessions; **above-average intraday volume** means greater than the median at the same elapsed session time over the prior 30 sessions.
+- Volume >2× the applicable baseline on an up day: strong institutional buying — bullish confirmation
+- Volume >2× the applicable baseline on a down day: strong institutional selling — bearish signal
+- Price up significantly on below-baseline volume: weak move — may not sustain
 - Volume dry-up at support: sellers exhausted — potential reversal point
 
 ### Relative Strength
@@ -153,7 +154,7 @@ Assign after computing all indicators:
 |---|---|
 | 5 | Above rising SMA50 and SMA200; top-quintile 63-session relative strength; MACD positive; confirming completed-bar volume |
 | 4 | Above rising SMA50 and SMA200 with positive relative strength and no major extension |
-| 3 | Eligible uptrend but mixed momentum, flat SMA50, or extension that blocks an immediate entry |
+| 3 | Mixed technical state, such as flat SMA50, mixed momentum, or extension that blocks an immediate entry; the score does not override the rising-SMA50 hard gate |
 | 2 | Below SMA50 or negative relative strength; no new entry |
 | 1 | Below SMA200 with falling SMA50 or confirmed high-volume breakdown |
 | 0 | Invalid/stale data or severe technical breakdown |
@@ -171,8 +172,8 @@ For a new BUY (trend confirmation required):
 - Volume on recent up days exceeds volume on recent down days
 
 For an EXIT (trend break, not mean-reversion):
-- Price closes below the 50-day SMA on above-average volume (the trend has broken — this is the primary exit)
+- Price closes below the 50-day SMA on above-average completed-day volume as defined above (the trend has broken — this is the primary exit; exact execution is in `06_risk_management.md`)
 - The ATR-based stop-loss or trailing stop is hit (see `06_risk_management.md`)
 - Bearish MACD divergence AS CONFIRMATION alongside a trend break — not on its own
 
-Do NOT exit on: high RSI alone, price touching the upper Bollinger Band, or a position simply being "up a lot." In an uptrend these are signs of strength, not reasons to sell. Winners are exited by the trailing stop.
+Do NOT exit on: high RSI alone, price touching the upper Bollinger Band, or a position simply being "up a lot." In an uptrend these are signs of strength, not reasons to sell. Winners are exited only by a trailing stop or another explicitly defined trend, thesis, event-risk, or portfolio-limit rule in `06_risk_management.md`.

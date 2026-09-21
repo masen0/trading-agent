@@ -9,7 +9,7 @@ purpose: Fundamental analysis — what to collect, how to interpret it, threshol
 
 Use the available Robinhood MCP tool for basic equity fundamentals. For financial statements and guidance, prefer company filings, earnings releases, and investor-relations materials; use web search only to locate or corroborate them. Record the source and as-of date. Never score an unsourced search snippet.
 
-Fundamentals are slow-moving. Refresh after earnings, material filings, or major company events, and otherwise no more than weekly. Within a trading day, apply the same-day cache policy below.
+Fundamentals are slow-moving, but the scored analysis follows the same-day cache policy below. Refresh after earnings, material filings, or major company events regardless of cache age.
 
 ## Same-Day Cache Policy
 
@@ -82,11 +82,11 @@ Never compare P/E directly with revenue growth and call the result PEG. For loss
 
 | Signal | Action |
 |---|---|
-| EPS beat >10% + guidance raised | Strong positive catalyst — consider adding |
+| EPS beat >10% + guidance raised | Strong positive catalyst — potential add candidate only if every entry/add gate passes |
 | EPS beat <5% + guidance in-line | Neutral — monitor |
-| EPS miss + guidance lowered | Negative catalyst — reassess thesis; consider trimming |
+| EPS miss + guidance lowered | Reassess whether the original thesis is invalidated; execute only the resulting rule in `06_risk_management.md` |
 | EPS miss + guidance raised | Mixed — dig into the reason for miss before acting |
-| Two consecutive misses | Thesis may be broken — consider full exit |
+| Two consecutive misses | Investigate possible thesis invalidation; exit only if verified under `06_risk_management.md` |
 | Revenue miss (even with EPS beat) | More concerning — management may be cutting costs to hit EPS while top line weakens |
 
 ### Margin Trends

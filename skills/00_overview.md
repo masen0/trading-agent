@@ -31,7 +31,7 @@ The four non-negotiable tenets:
 
 1. **Enter strength, not weakness.** Only buy stocks in a confirmed uptrend (price above a rising 50-day SMA). Never buy a falling knife just because it looks "cheap" or oversold. A low price in a downtrend is not a discount — it is the trend working against you.
 2. **Cut losers fast, at a pre-set stop.** Losses are kept small and mechanical. When a stop is hit, exit without deliberation. This is the only way the math works.
-3. **Let winners run.** Do NOT sell a healthy, trending position just because it is "up a lot," RSI is high, or the score ticked down a point. Trends persist far longer than they feel like they should. Winners are exited by a **trailing stop**, not by a discretionary "take profit" impulse.
+3. **Let winners run.** Do NOT sell a healthy, trending position just because it is "up a lot," RSI is high, or the score ticked down a point. Trends persist far longer than they feel like they should. Winners are exited only by a trailing stop or another explicitly defined trend, thesis, event-risk, or portfolio-limit rule—not by a discretionary "take profit" impulse.
 4. **Never average down.** Adding to a losing position is the single most account-destroying behavior for a trend-follower. If a position is below your cost, the trend thesis is already failing — you add to winners, never to losers.
 
 **Why this matters (the asymmetry):** trend-following is not about being right often. It is about small losses and large gains. You will have many small losing trades and a few large winners, and the winners pay for everything. If you cut winners early (to "lock in gains") and hold losers (hoping they "come back"), you invert the intended asymmetry and materially weaken the strategy's expectancy.
@@ -44,7 +44,7 @@ The four non-negotiable tenets:
 
 | File | Purpose |
 |---|---|
-| `01_universe.md` | Which stocks to scan and in what priority order |
+| `01_universe.md` | Which stocks are eligible to scan and how they map to sectors |
 | `02_fundamental.md` | Earnings, valuation metrics, financial health |
 | `03_technical.md` | Price indicators, momentum, trend, volatility |
 | `04_sentiment.md` | Social media, short interest, options flow, analyst sentiment |
@@ -60,7 +60,7 @@ The four non-negotiable tenets:
 
 At every scheduler-invoked session, perform screening, portfolio checks, and any authorized execution. Scheduling belongs to the deployment configuration, not these strategy skills. There is no continuous or post-close monitor unless a deployment explicitly adds one. A rule that requires a daily close uses only the latest official completed daily bar available at the current session; the current day's partial bar is never treated as an official close.
 
-This strategy permits fractional-share positions. Each position has an exact **logical stop** persisted in the decision ledger and trading logs. At the start of every scheduled session, evaluate every holding against its active logical stop before looking for new entries. If the current executable price is at or below the stop, sell the full available quantity, including fractional shares, at market during regular hours. A logical stop is not a resting broker order: it cannot trigger between sessions and does not cap losses from an intraday move or overnight gap. Record that residual risk rather than representing the stop as guaranteed protection.
+This strategy permits fractional-share positions. Each position has an exact **logical stop** persisted in the trading log's structured state. At the start of every scheduled session, evaluate every holding against its active logical stop before looking for new entries. If the current executable price is at or below the stop, sell the full available quantity, including fractional shares, at market during regular hours. A logical stop is not a resting broker order: it cannot trigger between sessions and does not cap losses from an intraday move or overnight gap. Record that residual risk rather than representing the stop as guaranteed protection.
 
 ### Phase 1 — Context (do once per session, ~2 min)
 1. Validate data freshness, market session, account identity, open orders, and tool health. If any required input is stale, missing, or contradictory, make no new trade.
@@ -69,14 +69,15 @@ This strategy permits fractional-share positions. Each position has an exact **l
 4. Check buying power, current positions, every position's persisted logical stop, today's fills, and pending orders. Evaluate stop breaches before screening new entries.
 
 ### Phase 2 — Quick Screen (~3 min)
-For all Tier 1 and Tier 2 stocks in `01_universe.md`:
+For all Tier 1 holdings and eligible Tier 2 stocks in `01_universe.md`:
 - Pull today's % price change (vs. previous day's close)
 - Flag for deep analysis if ANY of the following are true:
   - Daily move >3% vs. previous close (up or down)
-  - Volume >2× its 30-day average
+  - Relative volume >2× the appropriate 30-session baseline defined in `03_technical.md` (same-elapsed-time baseline intraday; completed-day baseline after the close)
   - RSI(14) crossed into oversold (<30) or overbought (>70)
   - Price crossed its 50-day or 200-day SMA (in either direction)
-  - The stock's sector ETF moved >2% today (SMH for semis/memory, XLK for tech, XLC for comms) — flag all stocks from that sector in the universe
+  - The stock's canonical sector or industry proxy from `01_universe.md` moved >2% today — flag all stocks mapped to that proxy
+  - The stock ranks in the top 20% of the eligible universe on 63-session relative strength as defined in `01_universe.md` and `03_technical.md`
 - Current holdings (Tier 1) always proceed to deep analysis regardless of the above
 - Only flagged stocks plus Tier 1 proceed to Phase 3
 
@@ -100,7 +101,7 @@ Fundamental analysis is normally performed at most once per symbol per trading d
 Every session log must identify each deep-analyzed symbol's fundamental status as `fresh_no_same_day_cache`, `reused_same_day`, or `refreshed_material_event`, and reference the source session and as-of time. Cache reuse saves work; it never permits stale evidence to override new material information.
 
 ### Phase 4 — Bull/Bear Debate (per stock with a potential trade)
-Before any order: force yourself to argue BOTH sides.
+Before any discretionary entry, add, trim, or thesis-based exit, force yourself to argue BOTH sides. Mechanical stops and mandatory portfolio/event-risk corrections execute under their rules and are not delayed by debate.
 - Write the strongest bull case for the trade
 - Write the strongest bear case against it
 - Only proceed if the bull case clearly outweighs the bear case with evidence, not hope
@@ -115,11 +116,10 @@ Create the session's Gmail draft trading log regardless of whether trades were m
 
 ## Session Continuity & Memory
 
-Each session is independent and starts cold, so continuity comes from three external sources read at the start of every session:
+Each session is independent and starts cold, so continuity comes from two external sources read at the start of every session:
 
 1. **Live Robinhood data** (positions, open orders, fills, buying power, and realized P&L) — the authoritative record of *what* happened.
-2. **The append-only structured decision ledger** — the authoritative record of rules, inputs, calculations, decisions, previews, orders, fills, and stop changes.
-3. **Exactly two `[Codex]` reasoning documents** — (a) the immediately previous session's `[Codex] Trading Log`, selected by timestamp strictly before the current run, and (b) the latest `[Codex]` Friday log containing a Weekly Review from the prior completed trading week. Read only these two documents; Claude logs and other mail are out of scope. If either is unavailable, record that fact and continue from live data and the ledger rather than substituting an unrelated message.
+2. **Up to two `[Codex]` reasoning documents** — (a) the immediately previous session's `[Codex] Trading Log`, selected by timestamp strictly before the current run, and (b) the latest `[Codex]` Friday log containing a Weekly Review from the prior completed trading week. If one document fulfills both roles, read it once. Read no unrelated mail. If either role is unavailable, record that fact and continue from verified live data rather than substituting an unrelated message.
 
 How to act on the reasoning context:
 - Check every forward-looking flag, invalidation level, and logical stop from the previous session log against live data now, and act if it has triggered.
@@ -149,14 +149,13 @@ Always establish market regime at the start of the session using completed daily
 - **Near the 50-day SMA** means the SPY close is within ±1.5% of it.
 - **Choppy** means SPY crossed its 50-day SMA at least twice during the last 10 completed sessions, or is near a flat 50-day SMA.
 
-| Regime | Conditions | Posture |
-|---|---|---|
-| **Bull — Strong** | SPY above a rising SMA50 and above SMA200; VIX < 18 | Normal risk budget; buy qualified strength/breakouts |
-| **Bull — Cautious** | SPY above SMA50, but SMA50 is flat or VIX is 18–25 | Half normal new-trade risk; require stronger relative strength |
-| **Transitional / Choppy** | Choppy definition above, or signals disagree | No new entries; manage existing risk only |
-| **Bear** | SPY below a falling SMA50, or below SMA200 with SMA50 non-rising | No new long entries; manage exits and cash |
+Classify with this precedence so exactly one regime always applies:
 
-In a Bear regime: do not open new positions. Focus on protecting existing ones.
+1. **Bear** — SPY is below a falling SMA50, or SPY is below SMA200 while SMA50 is non-rising. No new long entries.
+2. **Transitional / Choppy** — the choppy definition is true, or VIX >25, unless Bear already matched. No new entries.
+3. **Bull — Strong** — SPY is above a rising SMA50 and above SMA200, VIX <18, and neither higher-priority regime matched. Use normal risk budgets.
+4. **Bull — Cautious** — SPY is above SMA50 and SMA200, `(VIX is 18–25 inclusive OR SMA50 is flat)`, and neither higher-priority regime matched. Use half normal new-trade risk and require stronger relative strength.
+5. **Fallback: Transitional** — every combination not matched above is Transitional. No new entries.
 
 **VIX is a risk modifier, not the sole regime definition.** A low VIX does not make a flat market trendable, and VIX >30 independently blocks new entries.
 
@@ -176,7 +175,7 @@ In autonomous production, uncertainty, stale data, tool errors, duplicate or une
 
 - **FOMO buying**: Do not chase a stock that already moved >5% today without a clear catalyst you missed earlier
 - **Averaging down**: Never add to a position that is below your cost. This is forbidden, not discretionary. A losing position means the trend thesis is failing.
-- **Re-entry whipsaw**: If a symbol was sold at a loss within the last 5 trading days, do NOT re-buy it unless price has reclaimed its 50-day SMA on above-average volume OR shows a confirmed bullish RSI divergence. "It's cheaper now" is not a reason.
-- **Cutting winners early**: Do not sell a healthy, trending position to "lock in gains" on a high RSI or a one-point score drop. Winners are exited by trailing stops only.
+- **Re-entry whipsaw**: If a symbol was sold at a loss within the last 5 trading days, do NOT re-buy it unless price has reclaimed its 50-day SMA on above-average volume as defined in `03_technical.md` OR shows a confirmed bullish RSI divergence. Either condition only clears the lockout; every ordinary trend, regime, score, earnings, and risk gate must still pass. "It's cheaper now" is not a reason.
+- **Cutting winners early**: Do not sell a healthy, trending position to "lock in gains" on a high RSI or a one-point score drop. Winners are exited only by a trailing stop or another explicitly defined trend, thesis, event-risk, or portfolio-limit rule.
 - **Over-trading in a trendless market**: When there is no clear market trend, the default is no action. Each symbol traded at most once per day (enforced by order history check); most sessions should produce zero trades.
 - **Thesis drift**: Do not hold a stock just because you already own it; re-validate the trend and thesis every session.
