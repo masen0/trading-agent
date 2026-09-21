@@ -7,8 +7,9 @@ purpose: Fundamental analysis — what to collect, how to interpret it, threshol
 
 ## Data Sources
 
-Use the available Robinhood MCP tool for equity fundamentals (P/E, market cap, 52-week range, dividend yield) — see [Robinhood's tool documentation](https://robinhood.com/us/en/support/articles/trading-with-your-agent/) for the current tool name.
-Use web search for quarterly earnings details, EPS estimates, analyst consensus, and insider activity.
+Use the available Robinhood MCP tool for basic equity fundamentals. For financial statements and guidance, prefer company filings, earnings releases, and investor-relations materials; use web search only to locate or corroborate them. Record the source and as-of date. Never score an unsourced search snippet.
+
+Fundamentals are slow-moving. Refresh after earnings, material filings, or major company events, and otherwise no more than weekly. Reuse a timestamped cached assessment during intraday sessions.
 
 ---
 
@@ -19,7 +20,7 @@ Use web search for quarterly earnings details, EPS estimates, analyst consensus,
 |---|---|---|
 | P/E (trailing) | Robinhood fundamentals | Current earnings multiple |
 | Forward P/E | Web search (analyst estimates) | Expected earnings multiple |
-| PEG ratio | Compute: P/E ÷ EPS growth rate | Accounts for growth; PEG < 1.0 = potentially undervalued |
+| PEG ratio | Compute consistently using forward P/E ÷ expected EPS growth rate | A rough growth-adjusted valuation measure; compare only when inputs use compatible periods |
 | P/S ratio | Web search | More useful for pre-profit or high-growth companies |
 | EV/EBITDA | Web search | Enterprise value vs operating earnings; useful for comparing across capital structures |
 
@@ -50,14 +51,14 @@ AI and semiconductor stocks often trade at premium multiples justified by growth
 
 ### Valuation Framework
 
-| P/E vs. Revenue Growth | Interpretation |
+| P/E / PEG Context | Interpretation |
 |---|---|
-| P/E < growth rate (PEG < 1.0) | Potentially undervalued — strong buy consideration |
-| P/E ≈ growth rate (PEG 1.0–1.5) | Fairly valued — hold; add on dips |
-| P/E = 2× growth rate (PEG 1.5–2.5) | Moderately expensive — require strong catalysts to add |
-| P/E > 3× growth rate (PEG > 2.5) | Expensive — trim on strength; avoid new positions |
+| PEG < 1.0 with durable positive EPS growth | Valuation support; not a buy trigger |
+| PEG 1.0–1.5 | Neutral to reasonable relative to expected growth |
+| PEG 1.5–2.5 | Demanding; require stronger quality and trend evidence |
+| PEG > 2.5 or not meaningful | High expectation risk; do not infer an automatic sell |
 
-**Exception**: If revenue growth is accelerating quarter-over-quarter, a high P/E is more defensible.
+Never compare P/E directly with revenue growth and call the result PEG. For loss-making or cyclically depressed companies, PEG is not meaningful; use revenue growth, gross margin, FCF trajectory, and peer-relative EV/sales instead.
 
 ### Earnings Signals
 
@@ -96,17 +97,17 @@ Search SEC Form 4 filings or a site like OpenInsider.com for each stock.
 
 ---
 
-## Fundamental Score (0–5)
+## Fundamental Quality Score (0–5)
 
 At the end of fundamental analysis, assign a score:
 
 | Score | Meaning |
 |---|---|
-| 5 | Beat + raised guidance + expanding margins + insider buying |
-| 4 | Beat + in-line guidance OR strong fundamentals, no recent earnings |
-| 3 | In-line results + stable margins — neutral |
-| 2 | Miss OR declining margins OR guidance cut |
-| 1 | Multiple misses + deteriorating fundamentals |
-| 0 | Thesis broken — negative FCF, collapsing margins, repeated misses |
+| 5 | Positive revenue and FCF trend, stable/expanding margins, sound balance sheet, and raised or conservatively achievable guidance |
+| 4 | Strong quality with at most one minor weakness; guidance intact |
+| 3 | Mixed but stable; no material deterioration |
+| 2 | One material deterioration: guidance cut, significant margin compression, balance-sheet stress, or revenue miss |
+| 1 | Multiple material deteriorations or repeated misses |
+| 0 | Fundamental thesis invalidated by verified evidence |
 
-A score of 3 or below should raise the bar for entering a new position.
+Document each point with a dated fact. The same earnings or guidance event may be scored here or as a news catalyst, but not both. A score below 3 blocks a new position; valuation alone never forces an exit from an otherwise valid trend.

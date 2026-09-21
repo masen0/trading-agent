@@ -7,7 +7,7 @@ purpose: Sentiment analysis — social media, analyst ratings, short interest, o
 
 ## Data Sources
 
-All sentiment data comes from web search. Search specifically for:
+Sentiment is optional corroborating context, not a required input and never a standalone trade trigger. Prefer timestamped, attributable, structured sources. Generic web-search snippets and anonymous posts are insufficient evidence for sizing. Potential sources include:
 - Reddit (r/wallstreetbets, r/investing, r/stocks, r/SecurityAnalysis)
 - X/Twitter financial community (search for `$TICKER` on X)
 - StockTwits (stocktwits.com/symbol/TICKER)
@@ -85,15 +85,15 @@ Search: `"TICKER" unusual options activity` or `"TICKER" call sweep`
 ### Unusual Options Activity
 | Signal | Interpretation |
 |---|---|
-| Large call sweeps (market-order calls, short-dated) | Smart money positioning for near-term move up |
-| Large put sweeps | Hedging or directional bet on downside |
-| Call/Put ratio > 3:1 on unusual volume day | Bullish positioning |
-| Put/Call ratio > 2:1 on unusual volume | Bearish hedging or directional short |
+| Large call sweeps | Direction is unknown without opening/closing status, spread context, and trade-side classification; log as attention only |
+| Large put sweeps | May be a hedge or directional trade; log as attention only |
+| High call/put ratio | Possible bullish speculation, covered-call activity, or spread legs; corroboration required |
+| High put/call ratio | Possible downside positioning or portfolio hedging; corroboration required |
 
 ### Implied Volatility (IV)
 | IV Condition | Interpretation |
 |---|---|
-| IV Rank > 80 (IV very high vs historical) | Options expensive; prefer selling premium; expect post-event crush |
+| IV Rank > 80 (IV very high vs historical) | Large move is priced; do not infer direction or automatically sell premium |
 | IV Rank < 20 (IV very low) | Options cheap; cheap to hedge or speculate |
 | IV spiking before earnings | Market pricing in large move — actual move may disappoint |
 | IV collapsing after earnings ("IV crush") | Expected — not a signal by itself |
@@ -116,11 +116,15 @@ Search: `"TICKER" institutional ownership 13F` or look at recent SEC 13F filings
 
 ## Sentiment Score (0–5)
 
+Use a neutral score of 3 when reliable current data is unavailable. Never reward the score merely because more articles or posts exist. To avoid double counting, analyst reactions to an earnings event belong here only if the underlying event was not already scored in fundamentals or news.
+
 | Score | Conditions |
 |---|---|
-| 5 | Analyst upgrades + institutional buying + moderate short interest (squeeze potential) + smart money call flow |
+| 5 | Multiple independent, current, attributable positive signals with no evidence of crowded retail speculation |
 | 4 | Positive analyst sentiment + low short interest + neutral social |
 | 3 | Mixed signals across all domains |
 | 2 | Analyst downgrades OR high social hype (FOMO) at highs |
 | 1 | Multiple downgrades + institutional selling + bearish options flow |
-| 0 | Analyst consensus Sell + major fund exit + high put flow |
+| 0 | Multiple independently verified negative signals; options flow alone is insufficient |
+
+Sentiment may move a borderline candidate up or down in ranking, but it cannot bypass a trend, regime, liquidity, earnings, concentration, or risk gate.

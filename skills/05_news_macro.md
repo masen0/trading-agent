@@ -7,7 +7,7 @@ purpose: News analysis, macroeconomic context, sector catalysts, and insider act
 
 ## Data Sources
 
-All news and macro data comes from web search. Run targeted searches at the start of each session:
+Use first-party company releases and filings, official economic releases, exchange notices, and attributable reporting. Web search is a discovery mechanism, not the source of record. Record event time, publication time, source, and whether the event was known before the decision cutoff. Run targeted searches at the start of each session:
 - Company-specific: `"TICKER" news today` and `"TICKER" news last 48 hours`
 - Sector: `AI semiconductor news today`, `cloud computing news today`
 - Macro: `Fed news today`, `inflation data`, `10-year treasury yield`
@@ -17,7 +17,7 @@ All news and macro data comes from web search. Run targeted searches at the star
 
 ## 1. Company-Specific News
 
-### High-Impact Events (Act Immediately)
+### High-Impact Events (Reassess Immediately)
 
 | Event | Impact | Response |
 |---|---|---|
@@ -25,11 +25,11 @@ All news and macro data comes from web search. Run targeted searches at the star
 | Earnings miss + guidance cut | Strong negative | Reassess thesis; consider trimming or exiting |
 | Major contract win (government, hyperscaler) | Positive | Validate size and strategic fit before acting |
 | Product launch or tech breakthrough | Positive (if material) | Assess whether it changes competitive position |
-| CEO/CFO departure (unplanned) | Negative | Reduce position; wait for clarity |
-| DOJ/SEC investigation, major lawsuit | Negative | Reduce exposure; monitor development |
+| CEO/CFO departure (unplanned) | Negative | Reassess thesis and risk; do not trade on an unverified headline |
+| DOJ/SEC investigation, major lawsuit | Negative | Verify the primary source, then reassess thesis and risk |
 | Acquisition announcement (acquirer) | Often negative short-term (premium paid) | Evaluate strategic logic |
 | Acquisition announcement (target) | Strong positive | Premium typically 20–40% above market price |
-| Share buyback announcement (large, >5% of float) | Positive | Management confidence; floor under stock |
+| Share buyback authorization (large, >5% of float) | Potentially positive | An authorization is not execution and does not create a price floor |
 | Dividend cut | Negative | Signals financial stress |
 
 ### Medium-Impact Events (Consider in Context)
@@ -133,7 +133,8 @@ Also, at the start of each week, check the broader calendar (e.g. `AI semiconduc
 **Earnings risk management:**
 - Do NOT add to a position within 3 trading days of earnings (IV is elevated; risk is binary)
 - Do NOT open a NEW position within 3 trading days of its earnings (`06_risk_management.md` Do-Not-Trade checklist)
-- Consider trimming 25% of oversized positions before earnings to manage event risk
+- A logical stop checked twice daily does not bound intraday or overnight gap risk. Before earnings, compute the position's percentage of equity and documented event-risk budget.
+- If the position exceeds 10% of account equity, trim it to 10% or less before the report unless a separately backtested earnings-hold rule explicitly permits otherwise.
 - After earnings: wait for the initial reaction to settle (usually by end of day) before reacting
 - A beat-and-raise that sells off after initial pop = institutional distribution — consider trimming
 - An earnings gap-down >8% on above-average volume is a hard exit trigger (`06_risk_management.md` Exit Rules — D)
@@ -146,9 +147,11 @@ Also, at the start of each week, check the broader calendar (e.g. `AI semiconduc
 
 | Score | Conditions |
 |---|---|
-| 5 | Major positive catalyst (contract win, earnings beat, hyperscaler capex raise) + macro tailwind |
+| 5 | Verified material positive catalyst plus supportive macro context |
 | 4 | Positive company news + neutral macro |
 | 3 | No significant news; macro neutral |
 | 2 | Negative company news OR macro headwind (rate hike, recession signal) |
 | 1 | Material negative news (miss + guidance cut OR investigation) |
-| 0 | Thesis-breaking news; immediate reassessment required |
+| 0 | Verified thesis-breaking event; immediate reassessment required |
+
+One event receives one primary classification. Do not score the same earnings release, guidance change, or filing in both the fundamental and news domains.

@@ -7,8 +7,9 @@ purpose: Technical analysis — indicators to compute from OHLCV data, signals, 
 
 ## Data to Pull
 
-Use the available Robinhood MCP tool for equity historical OHLCV data — see [Robinhood's tool documentation](https://robinhood.com/us/en/support/articles/trading-with-your-agent/) for the current tool name. If a dedicated technical indicators tool is available (e.g. for RSI), prefer it over computing manually from raw OHLCV. Request at least **90 days of daily bars** for each stock being analyzed.
-90 days gives enough history for 50-day SMA and meaningful RSI/MACD calculations.
+Use adjusted OHLCV data so splits and distributions do not create false signals. Request at least **260 completed daily bars** for each stock being analyzed; use 300 when available to provide indicator warm-up. Never combine an incomplete intraday bar with completed daily bars.
+
+If a dedicated indicator tool is used, verify its adjustment policy, RSI convention, bar cutoff, and timezone. If these cannot be established, compute indicators consistently from adjusted bars.
 For weekly trend context, also pull 1 year of weekly bars.
 
 ---
@@ -29,28 +30,32 @@ Compute from daily close prices:
 **Signals:**
 - Price above all four MAs = strong uptrend — bulls in control
 - Price above 20 and 50 but below 100/200 = recovering from correction — cautious positive
-- Price below 50-day SMA = medium-term downtrend — require stronger signals to buy
+- Price below 50-day SMA = medium-term downtrend — no new long entry
 - Price below 200-day SMA = long-term downtrend — avoid new positions unless clear reversal
 - 20-day crossing above 50-day ("golden cross") = bullish momentum building
-- 20-day crossing below 50-day ("death cross") = bearish signal — consider reducing exposure
+- 20-day crossing below 50-day ("death cross") = bearish context; not a standalone exit
+
+For this system, a moving average is **rising** when its current value is at least 0.5% above its value 10 completed sessions ago, **falling** when at least 0.5% below, and otherwise flat. The labels "golden cross" and "death cross" are not standalone trade triggers.
 
 **Distance from 50-day SMA** (key metric):
-- Price >20% above 50-day: extremely extended — overbought, high trim signal
+- Price >20% above 50-day: extremely extended — block new entries unless the validated breakout exception applies; do not trim an existing winner on distance alone
 - Price >10% above 50-day: extended — elevated risk for new buys
 - Price within ±5% of 50-day: neutral zone
-- Price 5–15% below 50-day: oversold territory — potential add zone if thesis intact
-- Price >15% below 50-day: deeply oversold — check if fundamentals still support or if breakdown
+- Price 5–15% below 50-day: downtrend for this long-only strategy — no new entry
+- Price >15% below 50-day: major breakdown risk — no new entry and review any existing position
 
 ---
 
 ### 2. RSI — Relative Strength Index (Momentum)
 
-**Calculation** (14-period, daily):
+**Calculation** (14-period Wilder RSI, daily):
 ```
 delta = daily_close.diff()
-gain = delta.where(delta > 0, 0).rolling(14).mean()
-loss = (-delta.where(delta < 0, 0)).rolling(14).mean()
-RS = gain / loss
+gain = delta.clip(lower=0)
+loss = (-delta.clip(upper=0))
+avg_gain = gain.ewm(alpha=1/14, adjust=False, min_periods=14).mean()
+avg_loss = loss.ewm(alpha=1/14, adjust=False, min_periods=14).mean()
+RS = avg_gain / avg_loss
 RSI = 100 - (100 / (1 + RS))
 ```
 
@@ -63,8 +68,8 @@ RSI = 100 - (100 / (1 + RS))
 | < 30 | Oversold — in a downtrend this is a falling knife, NOT a buy. A low RSI in a downtrend means the trend is strong to the downside. Only meaningful as a bullish signal if it accompanies a *confirmed* reversal (price reclaiming the 50-day SMA). |
 | < 20 | Deeply oversold — almost always signals a structural breakdown, not an opportunity. Avoid. |
 
-**Important**: RSI divergence is a high-value signal:
-- Price makes new high but RSI makes lower high → bearish divergence → consider trimming
+RSI divergence is secondary confirmation and must be defined over explicit swing points; it never overrides the trend filter:
+- Price makes new high but RSI makes lower high → bearish divergence → monitor; do not trim without an exit trigger
 - Price makes new low but RSI makes higher low → bullish divergence → potential reversal entry
 
 ---
@@ -115,11 +120,15 @@ Band_width = (Upper_band - Lower_band) / SMA20
 ### 5. Volume Analysis
 
 **Signals:**
-- Volume today vs. 30-day average volume: compute ratio
+- Completed-day volume versus the median of the prior 30 completed sessions. Intraday volume may be compared only with the median volume at the same elapsed session time; never compare partial-day volume directly with full-day average volume.
 - Volume > 2× average on an up day: strong institutional buying — bullish confirmation
 - Volume > 2× average on a down day: strong institutional selling — bearish signal
 - Price up significantly on below-average volume: weak move — may not sustain
 - Volume dry-up at support: sellers exhausted — potential reversal point
+
+### Relative Strength
+
+Compute `RS63 = stock_total_return_63_sessions - SPY_total_return_63_sessions` over identical adjusted-close dates. Compute sector-relative strength the same way using the mapped sector ETF. Positive values indicate outperformance; universe percentile ranks must use the same timestamp and eligible universe.
 
 ---
 
@@ -136,18 +145,18 @@ Use ATR to set stop-loss distances (see `06_risk_management.md`) and understand 
 
 ---
 
-## Composite Technical Score (0–5)
+## Technical Score (0–5)
 
 Assign after computing all indicators:
 
 | Score | Conditions |
 |---|---|
-| 5 | Price above all MAs + RSI 40–60 + MACD bullish crossover + volume confirming |
-| 4 | Price above 20/50 SMA + RSI < 60 + MACD positive |
-| 3 | Mixed signals — some positive, some negative |
-| 2 | Price below 50-day SMA OR RSI > 70 (overbought for new buy) |
-| 1 | Price below 200-day SMA + MACD negative + RSI divergence bearish |
-| 0 | Technical breakdown — price making new lows, all MAs declining |
+| 5 | Above rising SMA50 and SMA200; top-quintile 63-session relative strength; MACD positive; confirming completed-bar volume |
+| 4 | Above rising SMA50 and SMA200 with positive relative strength and no major extension |
+| 3 | Eligible uptrend but mixed momentum, flat SMA50, or extension that blocks an immediate entry |
+| 2 | Below SMA50 or negative relative strength; no new entry |
+| 1 | Below SMA200 with falling SMA50 or confirmed high-volume breakdown |
+| 0 | Invalid/stale data or severe technical breakdown |
 
 ---
 
@@ -155,6 +164,8 @@ Assign after computing all indicators:
 
 For a new BUY (trend confirmation required):
 - Price is above a rising 50-day SMA (uptrend filter — non-negotiable)
+- Price is above its 200-day SMA
+- 63-session total return exceeds SPY's over the same dates; prefer positive sector-relative strength as well
 - RSI between 40–65 (momentum present, trend confirmed — do NOT buy sub-40 weakness)
 - MACD histogram expanding positively, or just crossed bullish
 - Volume on recent up days exceeds volume on recent down days

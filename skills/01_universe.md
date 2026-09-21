@@ -14,7 +14,9 @@ infrastructure (chips, memory, power), software (models, tooling, data), and dep
 
 Tier 1 is **determined dynamically at runtime** — it is whatever stocks the agent currently holds in the account. Do not assume any specific tickers here.
 
-At the start of each session, use the available Robinhood MCP tool for fetching current equity positions (see [Robinhood's tool documentation](https://robinhood.com/us/en/support/articles/trading-with-your-agent/) for the current tool name) with `account_number='494502131'`. Any symbol with quantity > 0 is automatically Tier 1 for that session and receives full deep analysis regardless of how much or how little it moved.
+At the start of each session, discover accounts with Robinhood MCP and select the **single account accessible to this agent for trading**. Never hardcode or log a full account number. Fetch current equity positions for that account. Any symbol with quantity > 0 is automatically Tier 1 for that session and receives full exit-risk analysis regardless of how much or how little it moved.
+
+If account discovery returns zero or multiple agent-tradable accounts, place no order until the ambiguity is resolved outside the strategy.
 
 ---
 
@@ -54,7 +56,6 @@ Every name below is screened each session with **equal priority**. The sector su
 ### Tech Mega-Cap (AI Deployment at Scale)
 | Ticker | Company | AI Angle |
 |---|---|---|
-| NVDA | (see above) | |
 | GOOGL | Alphabet | Gemini models, TPU custom silicon, Google Cloud AI, Search AI monetization |
 | MSFT | Microsoft | Azure AI, OpenAI partnership, Copilot across Office/GitHub/enterprise |
 | META | Meta Platforms | Llama open-source models, AI for ads/content ranking, inference chips |
@@ -73,7 +74,6 @@ Every name below is screened each session with **equal priority**. The sector su
 | CRWD | CrowdStrike | AI-native endpoint security; Falcon platform and Charlotte AI agent |
 | NOW | ServiceNow | AI automation for enterprise workflows; Now Assist platform |
 | CRM | Salesforce | Einstein AI across CRM; Agentforce AI agent platform |
-| PLTR | (see above) | |
 | PATH | UiPath | AI-powered robotic process automation (RPA) |
 | AI | C3.ai | Pure-play enterprise AI applications |
 
@@ -119,13 +119,27 @@ Every name below is screened each session with **equal priority**. The sector su
 
 ## Screening Method (sector-neutral)
 
+### Eligibility Gate
+
+Before a Tier 2 symbol may be ranked or bought, verify all of the following:
+
+- Robinhood reports the instrument tradable in the selected account and session.
+- It is a listed, liquid equity or ETF; private-company interests and unsupported instruments are excluded.
+- Median daily dollar volume over 20 completed sessions is at least $25 million.
+- The current bid-ask spread is no more than 0.50% of the midpoint.
+- At least 260 adjusted daily bars are available and no unresolved split, symbol change, merger, or stale-price issue exists.
+
+Failure of any eligibility check means **no new position**. Existing holdings remain in Tier 1 for risk management even if they later fail eligibility.
+
 Two tiers only:
 - **Tier 1 — Holdings**: every symbol currently owned (`get_equity_positions`, quantity > 0). Always deep-analyzed each session — primarily to check exit conditions (stops, trend breaks).
 - **Tier 2 — Watchlist**: every other name in this file, screened with **equal priority regardless of sector**.
 
 Each session:
-1. **Quick-screen ALL of Tier 2 first** (cheap — just pull % change vs. previous close and volume for each). Complete this across every sector *before* committing budget to any deep analysis, so no sector is skipped for being lower on a list.
-2. **Flag by signal, not by sector** — a name advances to deep analysis only if it trips a Phase-2 screen trigger (`00_overview.md`): >3% move vs. previous close, volume >2× average, RSI extreme, 50/200-day SMA cross, or a sector-ETF move.
+1. **Quick-screen ALL eligible Tier 2 names first** using the same completed-bar timestamp: daily return, dollar volume, SMA state, distance from 52-week high, and 63-session relative return versus SPY and the mapped sector ETF.
+2. **Flag by signal, not by sector** — a name advances to deep analysis only if it trips a Phase-2 screen trigger (`00_overview.md`) or ranks in the top 20% of the eligible universe on 63-session relative strength. Oversold readings may trigger risk review, but never create a long entry by themselves.
 3. **When multiple names flag and budget is limited, prioritize by signal strength, not sector.** Do not spend the whole deep-analysis budget on one sector — if flagged names span several sectors, ensure representation across them before going deep on multiple names from the same sector.
+
+The universe is reviewed monthly. Additions, removals, and sector/theme mappings are version-controlled and take effect prospectively; historical tests must use point-in-time membership to avoid survivorship bias.
 
 > This replaces the old sector-ordered priority list, which biased attention toward whichever sectors appeared first (a contributor to over-concentration in memory/semis). Sector position in this file now carries **no** weight; only live signals do.

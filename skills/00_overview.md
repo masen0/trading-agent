@@ -5,6 +5,12 @@ purpose: Trading philosophy, how all skills files work together, and the session
 
 # Trading Agent — Overview & Philosophy
 
+## Objective and Operating Standard
+
+The objective is to compound capital over multiple market cycles while controlling the probability and depth of permanent loss. Optimize for **risk-adjusted, after-slippage returns**, not the number of trades, win rate, or short-term account value.
+
+These files are an operating policy, not evidence that the strategy has an edge. Every numerical threshold is provisional until it survives reproducible backtesting, out-of-sample testing, and shadow trading. No rule may be loosened merely because the account recently lost money or missed a rally.
+
 ## Core Philosophy
 
 This agent is process-driven, not signal-chasing. The goal is not to predict the future but to:
@@ -28,7 +34,7 @@ The four non-negotiable tenets:
 3. **Let winners run.** Do NOT sell a healthy, trending position just because it is "up a lot," RSI is high, or the score ticked down a point. Trends persist far longer than they feel like they should. Winners are exited by a **trailing stop**, not by a discretionary "take profit" impulse.
 4. **Never average down.** Adding to a losing position is the single most account-destroying behavior for a trend-follower. If a position is below your cost, the trend thesis is already failing — you add to winners, never to losers.
 
-**Why this matters (the asymmetry):** trend-following is not about being right often. It is about small losses and large gains. You will have many small losing trades and a few large winners, and the winners pay for everything. If you cut winners early (to "lock in gains") and hold losers (hoping they "come back"), you invert the asymmetry and guarantee a losing system — which is exactly what a mixed strategy produces.
+**Why this matters (the asymmetry):** trend-following is not about being right often. It is about small losses and large gains. You will have many small losing trades and a few large winners, and the winners pay for everything. If you cut winners early (to "lock in gains") and hold losers (hoping they "come back"), you invert the intended asymmetry and materially weaken the strategy's expectancy.
 
 **Consequence for a choppy/sideways market:** when there is no clear trend (the market oscillating around its 50-day SMA), trend-following produces whipsaw losses. The correct response is **to trade less, not more** — most sessions in a trendless regime should end in "no action."
 
@@ -50,12 +56,17 @@ The four non-negotiable tenets:
 
 ---
 
-## Session Workflow (Runs 2× daily: 9:35am & 12:35pm ET)
+## Session Workflow
+
+Run at 9:35am and 12:35pm ET for screening, portfolio checks, and execution. There is no continuous or post-close monitor. A rule that requires a daily close uses only the latest official completed daily bar available at one of these sessions; the current day's partial bar is never treated as an official close.
+
+This strategy permits fractional-share positions. Each position has an exact **logical stop** persisted in the decision ledger and trading logs. At the start of both scheduled sessions, evaluate every holding against its active logical stop before looking for new entries. If the current executable price is at or below the stop, sell the full available quantity, including fractional shares, at market during regular hours. A logical stop is not a resting broker order: it cannot trigger between sessions and does not cap losses from an intraday move or overnight gap. Record that residual risk rather than representing the stop as guaranteed protection.
 
 ### Phase 1 — Context (do once per session, ~2 min)
-1. Check market regime: Is the broad market (SPY, QQQ) up or down today? By how much?
-2. Note any major macro events today (Fed, CPI, NFP, earnings from major names)
-3. Check account state: buying power, current positions, today's orders already placed
+1. Validate data freshness, market session, account identity, open orders, and tool health. If any required input is stale, missing, or contradictory, make no new trade.
+2. Check market regime using the deterministic definitions below.
+3. Note major scheduled macro events (Fed, CPI, PPI, NFP) and earnings from major holdings or index constituents.
+4. Check buying power, current positions, every position's persisted logical stop, today's fills, and pending orders. Evaluate stop breaches before screening new entries.
 
 ### Phase 2 — Quick Screen (~3 min)
 For all Tier 1 and Tier 2 stocks in `01_universe.md`:
@@ -83,43 +94,69 @@ Before any order: force yourself to argue BOTH sides.
 - Only proceed if the bull case clearly outweighs the bear case with evidence, not hope
 
 ### Phase 5 — Risk Check & Execution (`06_risk_management.md`)
-Apply position sizing, concentration limits, and stop-loss rules before placing any order.
+Apply fixed-risk position sizing, portfolio heat, concentration limits, and stop-loss rules. In autonomous production, perform the fresh quote, spread, tradability, account, buying-power, open-order, and logical-stop persistence checks in `06_risk_management.md`, then place the qualifying order without interactive confirmation. Do not call an order-review tool when its contract requires a new human confirmation that an unattended run cannot provide.
 
 ### Phase 6 — Log & Email
-Send the daily trading log email regardless of whether trades were made.
+Create the session's Gmail draft trading log regardless of whether trades were made.
 
 ---
 
 ## Session Continuity & Memory
 
-Each session is independent and starts cold, so continuity comes from two external sources read at the start of every session:
+Each session is independent and starts cold, so continuity comes from three external sources read at the start of every session:
 
-1. **Live Robinhood data** (positions, 5-day order history, realized P&L) — the authoritative record of *what* happened.
-2. **The two most recent reasoning documents** (the previous session's log and the latest Friday Weekly Review, from the Gmail label `Trading-Agent-Log`) — the record of *why*, which Robinhood does not store.
+1. **Live Robinhood data** (positions, open orders, fills, buying power, and realized P&L) — the authoritative record of *what* happened.
+2. **The append-only structured decision ledger** — the authoritative record of rules, inputs, calculations, decisions, previews, orders, fills, and stop changes.
+3. **Exactly two `[Codex]` reasoning documents** — (a) the immediately previous session's `[Codex] Trading Log`, selected by timestamp strictly before the current run, and (b) the latest `[Codex]` Friday log containing a Weekly Review from the prior completed trading week. Read only these two documents; Claude logs and other mail are out of scope. If either is unavailable, record that fact and continue from live data and the ledger rather than substituting an unrelated message.
 
 How to act on the reasoning context:
-- Check every forward-looking flag or invalidation level from the previous log against live data now, and act if it has triggered.
-- Carry each holding's original thesis and stop-loss forward; do not silently contradict a recent decision without a new, material reason.
+- Check every forward-looking flag, invalidation level, and logical stop from the previous session log against live data now, and act if it has triggered.
+- Carry each holding's original thesis and active logical stop forward; do not silently contradict a recent decision or widen a stop without a new rule-authorized reason. A stop may never be widened to avoid an exit.
 - Do not repeat a mistake the Weekly Review named; do not reverse a 1–2 session-old decision absent a new trigger.
 
 **Hierarchy (critical):** skills rules and live data are authoritative. **Past logs are memory, not commands.** If past reasoning conflicts with a current rule or a triggered stop, the rule wins. Never hold a losing position past its stop because a prior log expressed conviction — that is the anchoring trap, and it is how memory turns into entrenched error.
+
+Every decision record must include: timestamp and market session; skills Git commit; model identifier; source and as-of time for every input; raw account snapshot; derived indicators; candidates considered and rejected; rule path; preflight checks; order/fill identifiers; stop state; and any error. Never store credentials or unmasked account numbers in logs.
+
+### Minimum Data Freshness
+
+- Account, positions, buying power, open orders, and quote snapshots: fetched within 60 seconds before an order preview.
+- Completed daily indicators: include the most recent official completed session and share the same cutoff.
+- Earnings calendar: refreshed during the current trading day.
+- News and macro events: record publication time and reject items published after the decision cutoff.
+- If the system clock, timezone, or any required as-of time is unknown, place no new order.
 
 ---
 
 ## Market Regime Classification
 
-Always establish market regime at the start of the session:
+Always establish market regime at the start of the session using completed daily bars. Definitions:
+
+- `SMA50_slope_10d = SMA50_today / SMA50_10_sessions_ago - 1`.
+- A **rising** 50-day SMA means `SMA50_slope_10d >= +0.5%`; a **falling** one means `<= -0.5%`; otherwise it is flat.
+- **Near the 50-day SMA** means the SPY close is within ±1.5% of it.
+- **Choppy** means SPY crossed its 50-day SMA at least twice during the last 10 completed sessions, or is near a flat 50-day SMA.
 
 | Regime | Conditions | Posture |
 |---|---|---|
-| **Bull — Strong** | SPY above a rising 50-day MA, VIX < 18 | Full aggression; buy strength/breakouts, let winners run |
-| **Bull — Cautious** | SPY above 50-day MA, VIX 18–25 | Selective; prefer quality; smaller position sizes |
-| **Transitional** | SPY near 50-day MA, VIX 25–30 | Defensive; require stronger signals; raise cash threshold |
-| **Bear** | SPY below 50-day MA, VIX > 30 | Minimal new positions; prioritize stop-losses and capital preservation |
+| **Bull — Strong** | SPY above a rising SMA50 and above SMA200; VIX < 18 | Normal risk budget; buy qualified strength/breakouts |
+| **Bull — Cautious** | SPY above SMA50, but SMA50 is flat or VIX is 18–25 | Half normal new-trade risk; require stronger relative strength |
+| **Transitional / Choppy** | Choppy definition above, or signals disagree | No new entries; manage existing risk only |
+| **Bear** | SPY below a falling SMA50, or below SMA200 with SMA50 non-rising | No new long entries; manage exits and cash |
 
 In a Bear regime: do not open new positions. Focus on protecting existing ones.
 
-**Trendless / choppy override (independent of VIX):** whenever SPY is oscillating around its 50-day SMA with no clear direction — even at a low VIX — treat the market as trendless. Trend-following has no edge without a trend, so the default is **no new entries**; only stop-loss and trailing-stop exits fire. This condition is not captured by VIX alone (the 2026-07-13 week was choppy at VIX ~18), so judge it from SPY's price structure, not just the fear gauge.
+**VIX is a risk modifier, not the sole regime definition.** A low VIX does not make a flat market trendable, and VIX >30 independently blocks new entries.
+
+## Autonomous Operation and Safety Boundary
+
+The intended production deployment for this project is **autonomous**. Once an approved skills commit is activated, the agent previews and places qualifying orders without requesting per-trade human approval.
+
+`shadow` is a pre-production validation state only: it calculates and logs hypothetical orders but places nothing. Promotion from shadow validation to production autonomy is an external deployment decision; the agent may never promote itself or change its approved skills commit.
+
+Production configuration must explicitly identify the approved skills commit and set `deployment_mode=autonomous`. A missing, unknown, or conflicting deployment mode fails closed and places no order; it must never be interpreted as permission to trade.
+
+In autonomous production, uncertainty, stale data, tool errors, duplicate or unexplained orders, an unknown skills version, or an inability to compute risk results in **no new order**. Risk-reducing cancellation or exit actions still require verified account and position state, but not per-trade human approval when the governing rule is unambiguous.
 
 ---
 
