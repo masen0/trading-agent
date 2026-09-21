@@ -58,9 +58,9 @@ The four non-negotiable tenets:
 
 ## Session Workflow
 
-Run at 9:35am and 12:35pm ET for screening, portfolio checks, and execution. There is no continuous or post-close monitor. A rule that requires a daily close uses only the latest official completed daily bar available at one of these sessions; the current day's partial bar is never treated as an official close.
+At every scheduler-invoked session, perform screening, portfolio checks, and any authorized execution. Scheduling belongs to the deployment configuration, not these strategy skills. There is no continuous or post-close monitor unless a deployment explicitly adds one. A rule that requires a daily close uses only the latest official completed daily bar available at the current session; the current day's partial bar is never treated as an official close.
 
-This strategy permits fractional-share positions. Each position has an exact **logical stop** persisted in the decision ledger and trading logs. At the start of both scheduled sessions, evaluate every holding against its active logical stop before looking for new entries. If the current executable price is at or below the stop, sell the full available quantity, including fractional shares, at market during regular hours. A logical stop is not a resting broker order: it cannot trigger between sessions and does not cap losses from an intraday move or overnight gap. Record that residual risk rather than representing the stop as guaranteed protection.
+This strategy permits fractional-share positions. Each position has an exact **logical stop** persisted in the decision ledger and trading logs. At the start of every scheduled session, evaluate every holding against its active logical stop before looking for new entries. If the current executable price is at or below the stop, sell the full available quantity, including fractional shares, at market during regular hours. A logical stop is not a resting broker order: it cannot trigger between sessions and does not cap losses from an intraday move or overnight gap. Record that residual risk rather than representing the stop as guaranteed protection.
 
 ### Phase 1 — Context (do once per session, ~2 min)
 1. Validate data freshness, market session, account identity, open orders, and tool health. If any required input is stale, missing, or contradictory, make no new trade.
@@ -82,10 +82,22 @@ For all Tier 1 and Tier 2 stocks in `01_universe.md`:
 
 ### Phase 3 — Deep Analysis (per flagged stock, ~5 min each)
 For each stock entering deep analysis, work through ALL of:
-- Fundamental check (`02_fundamental.md`)
+- Fundamental check or valid same-day cache reuse (`02_fundamental.md`)
 - Technical check (`03_technical.md`)
 - Sentiment check (`04_sentiment.md`)
 - News/macro check (`05_news_macro.md`)
+
+### Same-Day Fundamental Cache
+
+Fundamental analysis is normally performed at most once per symbol per trading day because company financial statements, valuation inputs, and business-quality evidence do not ordinarily change between intraday sessions.
+
+- At the start of each session, read the immediately previous `[Codex]` session log. For each deep-analyzed symbol, reuse its fundamental result only when that log is from the same ET trading date, contains a complete cache record for the symbol, was produced under the same skills commit, and has not been invalidated.
+- If there is no previous session log from the same ET trading date, or the same-day log has no valid record for that symbol, run the full fundamental workflow and persist its score, component evidence, sources, as-of times, and skills commit in the current `[Codex]` log and `STATE` block.
+- On every session, refresh technical, sentiment, news/macro, account, position, and risk inputs normally, then recompute the composite score using either the valid cached or newly calculated fundamental score.
+- **Material-event invalidation:** refresh the affected symbol's fundamentals when verified post-cache information could change the business thesis or fundamental score, including earnings or guidance, a material SEC filing, merger/acquisition or divestiture, financing or capital-return action, major contract/customer change, unplanned CEO/CFO departure, material regulatory action, or another comparably thesis-changing event.
+- If a valid same-day fundamental result is unavailable and cannot be refreshed, the symbol may be monitored and an existing holding may still be reduced under a separately verified exit rule, but no new or added exposure is permitted.
+
+Every session log must identify each deep-analyzed symbol's fundamental status as `fresh_no_same_day_cache`, `reused_same_day`, or `refreshed_material_event`, and reference the source session and as-of time. Cache reuse saves work; it never permits stale evidence to override new material information.
 
 ### Phase 4 — Bull/Bear Debate (per stock with a potential trade)
 Before any order: force yourself to argue BOTH sides.

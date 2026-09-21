@@ -9,7 +9,25 @@ purpose: Fundamental analysis — what to collect, how to interpret it, threshol
 
 Use the available Robinhood MCP tool for basic equity fundamentals. For financial statements and guidance, prefer company filings, earnings releases, and investor-relations materials; use web search only to locate or corroborate them. Record the source and as-of date. Never score an unsourced search snippet.
 
-Fundamentals are slow-moving. Refresh after earnings, material filings, or major company events, and otherwise no more than weekly. Reuse a timestamped cached assessment during intraday sessions.
+Fundamentals are slow-moving. Refresh after earnings, material filings, or major company events, and otherwise no more than weekly. Within a trading day, apply the same-day cache policy below.
+
+## Same-Day Cache Policy
+
+Run the full workflow in this file no more than once per symbol per ET trading day unless a material event invalidates the result.
+
+For every completed fundamental analysis, persist a cache record containing:
+
+- symbol and ET trading date;
+- final 0–5 fundamental score and all component judgments used to produce it;
+- underlying facts, units, periods, sources, and as-of/publication times;
+- skills Git commit and model identifier; and
+- cache status and any later invalidation reason.
+
+At each session, read the immediately previous session log. Reuse a cached result only when that log is from the same ET trading date, contains a complete record for the symbol, matches the current skills commit, and no verified material event occurred after its recorded cutoff. Reusing a cache means reusing its evidence and score—not silently reconstructing the score from memory.
+
+Refresh the affected symbol when new information could materially change its thesis or score, including earnings or guidance, a material SEC filing, merger/acquisition or divestiture, equity or debt financing, buyback or dividend action, major customer or contract change, unplanned CEO/CFO departure, material regulatory action, or another comparably thesis-changing event. Record the event, source, timestamp, prior score, new score, and reason for any change.
+
+If no previous log from the same trading date exists, or a symbol lacks a valid same-day record, perform this workflow before calculating an actionable score. If the workflow cannot be completed with valid data, do not open or add exposure; existing risk-reducing exits remain governed by `06_risk_management.md`.
 
 ---
 

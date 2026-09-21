@@ -133,7 +133,7 @@ Also, at the start of each week, check the broader calendar (e.g. `AI semiconduc
 **Earnings risk management:**
 - Do NOT add to a position within 3 trading days of earnings (IV is elevated; risk is binary)
 - Do NOT open a NEW position within 3 trading days of its earnings (`06_risk_management.md` Do-Not-Trade checklist)
-- A logical stop checked twice daily does not bound intraday or overnight gap risk. Before earnings, compute the position's percentage of equity and documented event-risk budget.
+- A logical stop checked only during scheduled sessions does not bound between-session or overnight gap risk. Before earnings, compute the position's percentage of equity and documented event-risk budget.
 - If the position exceeds 10% of account equity, trim it to 10% or less before the report unless a separately backtested earnings-hold rule explicitly permits otherwise.
 - After earnings: wait for the initial reaction to settle (usually by end of day) before reacting
 - A beat-and-raise that sells off after initial pop = institutional distribution — consider trimming

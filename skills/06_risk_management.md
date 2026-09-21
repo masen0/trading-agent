@@ -76,7 +76,7 @@ Consistent with the trend-following strategy (`00_overview.md`), you add ONLY to
 
 Every exit in this system is one of the types below. All other skills files refer here for exact mechanics. **Logical stops and closing-basis trend exits are different controls:**
 
-- The initial or trailing logical stop is persisted by the agent and evaluated at 9:35am and 12:35pm ET. It is not a live broker-side order and does not trigger between those sessions.
+- The initial or trailing logical stop is persisted by the agent and evaluated at the start of every scheduled session. It is not a live broker-side order and does not trigger between sessions.
 - A trend-break rule based on the daily close uses the latest official completed bar available at either scheduled session and is executed in that regular-hours session when verified.
 
 The governing principle (see `00_overview.md`): **losers are cut fast at a pre-set stop; winners are exited only by a trailing stop or a genuine trend break.** Never sell a healthy, trending position on high RSI, a one-point score drop, or because it is "up a lot."
@@ -105,7 +105,7 @@ The initial stop, fixed at the moment you enter, using ATR (14-day):
 - **Floor**: at least 5% below entry (don't get shaken out by normal noise).
 - **Ceiling**: never more than 20% below entry. AI/tech names here can move 8–15% in a session; a tighter ceiling would stop out intact positions on normal volatility.
 - **Execution**: after an entry fills, calculate the final stop from the actual average fill, write it to the append-only ledger, and include it in the session log. At the start of each scheduled session, read the persisted stop and compare it with a fresh executable quote before any new-entry analysis. If price is at or below the stop, sell the full `shares_available_for_sells` at market in regular hours and verify the resulting order and position state.
-- Because the logical stop is checked only twice daily, execution can occur materially below the stop after a fast move or gap. The planned loss and portfolio-heat calculations are risk budgets, not guarantees. Log the stop price, observed price, fill price, and slippage through the stop.
+- Because the logical stop is checked only during scheduled sessions, execution can occur materially below the stop after a fast move or gap. The planned loss and portfolio-heat calculations are risk budgets, not guarantees. Log the stop price, observed price, fill price, and slippage through the stop.
 - Never move a stop lower to "give it room." A new higher trailing stop must be durably written before treating it as active. If an entry fills but its logical stop cannot be persisted and read back, submit a risk-reducing exit and disable new entries pending review.
 
 ### B. Trailing stop (for winners) — locks in gains as the trend runs

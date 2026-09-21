@@ -17,7 +17,7 @@ A candidate is ineligible for a new long position or an addition to an existing 
 
 1. The selected account and current account state are verified.
 2. Instrument eligibility and liquidity checks in `01_universe.md` pass.
-3. Data-quality and timestamp checks pass.
+3. Data-quality and timestamp checks pass, including a valid same-day fundamental result under `02_fundamental.md` for any new or added exposure.
 4. Market regime permits new long exposure.
 5. Price is above a rising SMA50 and above SMA200.
 6. Earnings are not within three trading days.
@@ -55,6 +55,8 @@ Normalize to 0–20:
 - Sentiment is lowest because it's most subject to noise and manipulation
 
 These weights are provisional. A fact may contribute to only one domain—particularly earnings, guidance, analyst reactions, and macro news. When reliable sentiment data is unavailable, use the neutral score defined in `04_sentiment.md` and lower confidence; do not invent evidence.
+
+At each session, the fundamental input may reuse the immediately previous session's valid same-day cache defined in `02_fundamental.md`. Technical, sentiment, and news/macro inputs must still be refreshed. If the previous log is not from the same ET trading date, a symbol has no complete same-day cache, or a material event invalidated it, complete a fresh fundamental analysis before calculating an actionable composite score. Record whether the fundamental score was `fresh_no_same_day_cache`, `reused_same_day`, or `refreshed_material_event`, together with its source-session timestamp.
 
 ---
 
@@ -121,6 +123,7 @@ Trade: [BUY/SELL] $[amount] of [TICKER]
 Score: [X]/20 (F:[x] T:[x] S:[x] N:[x])
 Skills commit / model: [commit] / [model]
 Data cutoff: [timestamp and market session]
+Fundamental status/source: [fresh_no_same_day_cache/reused_same_day/refreshed_material_event] / [source session and as-of time]
 Thesis: [1–2 sentences why this trade makes sense]
 Bull case: [strongest supporting argument]
 Bear case: [strongest opposing argument — why it's still right to act]
