@@ -1,6 +1,6 @@
 ---
 file: 01_universe.md
-purpose: Stock universe — which stocks to scan, in what order, and why each is an AI play
+purpose: Stock universe — which stocks to screen, the canonical sector map, and why each is an AI play
 ---
 
 # Stock Universe — AI Beneficiary Watchlist
@@ -20,7 +20,7 @@ At the start of each session, use the available Robinhood MCP tool for fetching 
 
 ## Tier 2 — Watchlist (All Screened Every Session — Sectors Treated Equally)
 
-Every name below is screened each session with **equal priority**. The sector sub-groupings exist only for (a) AI-angle context and (b) sector-concentration mapping in `06_risk_management.md`. They do **NOT** imply any screening order. What advances to deep analysis is decided by **signal strength** (see Screening Method at the end of this file), never by sector or position in this list.
+Every name below is screened each session with **equal priority**. The sector sub-groupings give AI-angle context and mirror the **Canonical Sector Map** further down, which is the authoritative mapping for risk limits. They do **NOT** imply any screening order. What advances to deep analysis is decided by **signal strength** (see Screening Method at the end of this file), never by sector or position in this list.
 
 ### Memory & Storage
 | Ticker | Company | AI Angle |
@@ -54,7 +54,6 @@ Every name below is screened each session with **equal priority**. The sector su
 ### Tech Mega-Cap (AI Deployment at Scale)
 | Ticker | Company | AI Angle |
 |---|---|---|
-| NVDA | (see above) | |
 | GOOGL | Alphabet | Gemini models, TPU custom silicon, Google Cloud AI, Search AI monetization |
 | MSFT | Microsoft | Azure AI, OpenAI partnership, Copilot across Office/GitHub/enterprise |
 | META | Meta Platforms | Llama open-source models, AI for ads/content ranking, inference chips |
@@ -73,7 +72,6 @@ Every name below is screened each session with **equal priority**. The sector su
 | CRWD | CrowdStrike | AI-native endpoint security; Falcon platform and Charlotte AI agent |
 | NOW | ServiceNow | AI automation for enterprise workflows; Now Assist platform |
 | CRM | Salesforce | Einstein AI across CRM; Agentforce AI agent platform |
-| PLTR | (see above) | |
 | PATH | UiPath | AI-powered robotic process automation (RPA) |
 | AI | C3.ai | Pure-play enterprise AI applications |
 
@@ -93,8 +91,6 @@ Every name below is screened each session with **equal priority**. The sector su
 | HPE | Hewlett Packard Enterprise | AI servers and networking; Cray supercomputers for AI |
 | VRT | Vertiv | Power and thermal management for data centers; direct beneficiary of AI energy demand |
 
----
-
 ### Power & Energy (AI Data Centers Are Power-Hungry)
 | Ticker | Company | AI Angle |
 |---|---|---|
@@ -113,7 +109,33 @@ Every name below is screened each session with **equal priority**. The sector su
 ### Space & Satellite Connectivity
 | Ticker | Company | AI Angle |
 |---|---|---|
-| SPCX | SpaceX (Class A) | Starlink connectivity for edge/distributed AI and remote data; AI-driven autonomous launch/landing. Indirect AI play — high growth, high volatility; scan on catalyst. |
+| SPCX | SpaceX (Class A) | Starlink connectivity for edge/distributed AI and remote data; AI-driven autonomous launch/landing. Indirect AI play — high growth, high volatility. |
+
+---
+
+## Canonical Sector Map (authoritative for concentration limits and sector-ETF rules)
+
+Every symbol belongs to **exactly one** sector for risk purposes. Where a company could plausibly sit in two groups, the assignment below is the one that counts — use it for the 40% sector-concentration cap in `06_risk_management.md` and for the sector-ETF triggers in `00_overview.md` and `07_decision_framework.md`.
+
+| Sector | Members | Sector ETF proxy |
+|---|---|---|
+| Memory & Storage | MU, SNDK, WDC, SKHY | **SMH** |
+| Semiconductor Chips | NVDA, AMD, AVGO, ARM, MRVL, QCOM, INTC | **SMH** |
+| Semiconductor Equipment | AMAT, LRCX, KLAC, ASML, SNPS, CDNS | **SMH** |
+| Tech Mega-Cap | GOOGL, MSFT, META, AMZN, AAPL, TSLA | **QQQ** |
+| AI Software & Applications | PLTR, ADBE, SNOW, DDOG, PANW, CRWD, NOW, CRM, PATH, AI | **XLK** |
+| Cloud & GPU Infrastructure | ORCL, CRWV, NBIS, NET | **XLK** |
+| AI Server Hardware | SMCI, DELL, HPE, VRT | **XLK** |
+| Power & Energy | CEG, VST, NRG, ETR, GEV | **XLU** |
+| Networking | ANET, CSCO | **XLK** |
+| Space & Satellite | SPCX | *(none — no liquid proxy; sector-ETF rules do not apply)* |
+
+**Notes:**
+- **Proxies are sector-level approximations, chosen for correlation, not exact index membership.** For example, GEV is an industrial but trades with the power buildout, and VRT likewise with AI hardware. The one correction worth knowing: Tech Mega-Cap uses **QQQ**, not XLK, because four of its six names (AMZN, TSLA, META, GOOGL) are not in the technology sector ETF at all — all six are in the Nasdaq-100.
+- **NVDA** counts once, under Semiconductor Chips — not under Tech Mega-Cap.
+- **SMH covers three sectors** (Memory, Chips, Equipment). They are separate for the *concentration* cap but share one ETF trigger. Because they are highly correlated, also apply the combined check below.
+- **Combined semiconductor exposure**: Memory + Chips + Equipment together may not exceed **50% of account value** (`06_risk_management.md`). They routinely move as one bloc, so treating them as three independent 40% buckets understates the real risk (this is how the account became ~70% memory/semis in July).
+- **SPCX has no ETF proxy** — the sector-ETF screen and the sector-breakdown exit simply do not apply to it. Judge it on its own price action.
 
 ---
 
@@ -125,7 +147,7 @@ Two tiers only:
 
 Each session:
 1. **Quick-screen ALL of Tier 2 first** (cheap — just pull % change vs. previous close and volume for each). Complete this across every sector *before* committing budget to any deep analysis, so no sector is skipped for being lower on a list.
-2. **Flag by signal, not by sector** — a name advances to deep analysis only if it trips a Phase-2 screen trigger (`00_overview.md`): >3% move vs. previous close, volume >2× average, RSI extreme, 50/200-day SMA cross, or a sector-ETF move.
+2. **Flag by signal, not by sector** — a name is flagged only if it trips a quick-screen trigger (`00_overview.md`): >3% move vs. previous close, volume >2× average, RSI extreme, 50/200-day SMA cross, or a sector-ETF move. A flagged name then faces the eligibility gates (`07_decision_framework.md` Step 0), and only names that pass them receive deep analysis.
 3. **When multiple names flag and budget is limited, prioritize by signal strength, not sector.** Do not spend the whole deep-analysis budget on one sector — if flagged names span several sectors, ensure representation across them before going deep on multiple names from the same sector.
 
 > This replaces the old sector-ordered priority list, which biased attention toward whichever sectors appeared first (a contributor to over-concentration in memory/semis). Sector position in this file now carries **no** weight; only live signals do.

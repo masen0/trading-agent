@@ -35,7 +35,7 @@ Search: `"$TICKER" site:reddit.com last week` and `"$TICKER" sentiment today`
 
 **Important**: Social sentiment is a contrarian indicator at extremes. Extreme retail bullishness near highs is a caution signal; extreme retail panic near lows is a supportive signal. In the middle, it adds little.
 
-**Trend filter still governs.** Sentiment only adjusts the composite score — it never overrides the trend rule. "Extreme panic near lows" may raise the sentiment sub-score, but you still may NOT open a new position in a stock trading below its rising 50-day SMA (see `00_overview.md` and `07_decision_framework.md`). Contrarian sentiment can help time a re-entry *after* a trend has been reconfirmed; it is never a license to buy a falling knife.
+**The trend filter still governs.** Sentiment only adjusts the composite score — it never overrides an eligibility gate. "Extreme panic near lows" may raise the sentiment sub-score, but you still may NOT open a position in a stock that fails the trend filter — above a rising 50-day SMA and above the 200-day SMA (`07_decision_framework.md` Step 0). Contrarian sentiment can help time a re-entry *after* a trend has been reconfirmed; it is never a license to buy a falling knife.
 
 ---
 
@@ -74,7 +74,7 @@ Search: `"TICKER" short interest float` or check finviz.com
 2. Strong positive catalyst (earnings beat, contract win, industry news)
 3. Technical breakout on high volume
 
-If all three present simultaneously, a squeeze may amplify the move significantly.
+If all three are present, a squeeze may amplify the move. Only the short-interest element is scored here — the catalyst and the breakout are already scored in their own domains (Fundamental or News, and Technical), so do not add them again (`07_decision_framework.md` Step 1).
 
 ---
 
@@ -91,10 +91,13 @@ Search: `"TICKER" unusual options activity` or `"TICKER" call sweep`
 | Put/Call ratio > 2:1 on unusual volume | Bearish hedging or directional short |
 
 ### Implied Volatility (IV)
+
+*This agent trades equities only. Options data is read purely as a **sentiment signal about the underlying** — never as a trade instruction. Do not infer an options strategy (selling premium, hedging with puts) from these rows; at this account size those are not executable anyway.*
+
 | IV Condition | Interpretation |
 |---|---|
-| IV Rank > 80 (IV very high vs historical) | Options expensive; prefer selling premium; expect post-event crush |
-| IV Rank < 20 (IV very low) | Options cheap; cheap to hedge or speculate |
+| IV Rank > 80 (IV very high vs historical) | The market expects a large move — read as **elevated event risk on the underlying**, and expect post-event IV crush |
+| IV Rank < 20 (IV very low) | Complacency / low expected movement |
 | IV spiking before earnings | Market pricing in large move — actual move may disappoint |
 | IV collapsing after earnings ("IV crush") | Expected — not a signal by itself |
 

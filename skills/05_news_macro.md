@@ -1,6 +1,6 @@
 ---
 file: 05_news_macro.md
-purpose: News analysis, macroeconomic context, sector catalysts, and insider activity
+purpose: Non-earnings company news, macroeconomic context, sector catalysts, and the earnings calendar
 ---
 
 # News & Macro Analysis
@@ -11,32 +11,34 @@ All news and macro data comes from web search. Run targeted searches at the star
 - Company-specific: `"TICKER" news today` and `"TICKER" news last 48 hours`
 - Sector: `AI semiconductor news today`, `cloud computing news today`
 - Macro: `Fed news today`, `inflation data`, `10-year treasury yield`
-- Insider: `"TICKER" insider buying SEC Form 4` (90-day window)
+
+**What this file does NOT score** (ownership table, `07_decision_framework.md` Step 1): earnings results and guidance, and insider activity, are scored in `02_fundamental.md`; analyst rating changes in `04_sentiment.md`; and the market's price reaction to any event in `03_technical.md`. Scoring them here as well would count the same fact twice.
 
 ---
 
 ## 1. Company-Specific News
 
-### High-Impact Events (Act Immediately)
+### High-Impact Events (score inputs — not exit authority)
+
+The non-earnings events below set the **News sub-score** and inform the thesis. None of them authorizes a sale on its own: every exit must come from an Exit Rule in `06_risk_management.md`. A severe event can meet the **thesis stop** definition there — invoke that rule by name rather than improvising a "reduce exposure" trade.
 
 | Event | Impact | Response |
 |---|---|---|
-| Earnings beat + guidance raise | Strong positive | Consider adding; validate technicals first |
-| Earnings miss + guidance cut | Strong negative | Reassess thesis; consider trimming or exiting |
-| Major contract win (government, hyperscaler) | Positive | Validate size and strategic fit before acting |
-| Product launch or tech breakthrough | Positive (if material) | Assess whether it changes competitive position |
-| CEO/CFO departure (unplanned) | Negative | Reduce position; wait for clarity |
-| DOJ/SEC investigation, major lawsuit | Negative | Reduce exposure; monitor development |
-| Acquisition announcement (acquirer) | Often negative short-term (premium paid) | Evaluate strategic logic |
-| Acquisition announcement (target) | Strong positive | Premium typically 20–40% above market price |
-| Share buyback announcement (large, >5% of float) | Positive | Management confidence; floor under stock |
+| Earnings results and guidance | — | **Scored in `02_fundamental.md`, not here.** A miss with a guidance cut meets the thesis-stop definition in `06`. |
+| Major contract win (government, hyperscaler) | Positive | Validate its size and strategic fit before scoring |
+| Product launch or technology breakthrough | Positive (if material) | Assess whether it changes the competitive position |
+| CEO/CFO departure (unplanned) | Negative | Lower the News score; verify the primary source. It is a thesis stop only if it breaks the thesis — not automatically |
+| DOJ/SEC investigation, major lawsuit | Negative | Verify via the primary filing, then assess it against the **thesis stop** test in `06` |
+| Acquisition announcement (company is the acquirer) | Often negative short-term (premium paid) | Evaluate the strategic logic |
+| Acquisition announcement (company is the target) | Strong positive | Premium typically 20–40% above market price |
+| Share buyback **authorization** (large, >5% of float) | Mildly positive | Signals management confidence. **An authorization is not execution and creates no price floor** — do not treat it as downside protection |
 | Dividend cut | Negative | Signals financial stress |
 
 ### Medium-Impact Events (Consider in Context)
 
 | Event | Impact |
 |---|---|
-| Analyst day / investor day | Positive if guidance raised or new products unveiled |
+| Analyst day / investor day | Positive if new products are unveiled or targets raised (guidance itself is scored in `02`) |
 | Supply chain disruption | Negative for manufacturers; positive for some competitors |
 | Partnership announcement | Positive if material; many are PR |
 | Share offering / dilution | Negative — dilutes existing shareholders |
@@ -48,7 +50,7 @@ All news and macro data comes from web search. Run targeted searches at the star
 
 ## 2. Macroeconomic Context
 
-Check at start of each session. Macro shifts the regime for ALL stocks.
+Check at the start of each session. Macro conditions affect every stock, so they enter each candidate's News score through its macro component. (The market *regime* — whether new entries are allowed at all — is set separately by SPY and VIX in `00_overview.md`.)
 
 ### Federal Reserve & Interest Rates
 
@@ -60,7 +62,7 @@ Check at start of each session. Macro shifts the regime for ALL stocks.
 | 10-year treasury > 5% | Challenging environment for high-multiple growth stocks |
 | 10-year treasury < 4% | More supportive of growth stock valuations |
 
-**Rule**: When 10-year yield is rising fast (>30bps in a month), be more cautious on adding to high-P/E AI names.
+**Rule**: a 10-year yield rising fast (more than 30bps in a month) is a macro headwind — score it as such in the News score of high-P/E AI names.
 
 ### Inflation Data (CPI/PPI)
 
@@ -76,79 +78,61 @@ Check at start of each session. Macro shifts the regime for ALL stocks.
 |---|---|
 | Strong GDP growth | Positive — enterprise spending on AI continues |
 | GDP contraction or recession signals | Negative — IT budgets cut; AI projects delayed |
-| Strong jobs report | Mixed — good for economy but may delay Fed cuts |
-| Weak jobs report | Mixed — recession concern vs. rate cut hope |
+| Strong jobs report | Mixed — good for the economy but may delay Fed cuts |
+| Weak jobs report | Mixed — recession concern vs. rate-cut hope |
 
 ---
 
 ## 3. Sector-Specific AI Catalysts
 
-Monitor these recurring themes that can move entire sectors:
+Recurring themes that can move entire sectors. For a supplier, another company's announcement (for example, a hyperscaler raising capex) is a sector development, so it is scored here.
 
 | Catalyst | Affected Stocks | Direction |
 |---|---|---|
 | Hyperscaler (MSFT/GOOGL/AMZN/META) capex guidance raised | NVDA, AMD, AMAT, LRCX, SMCI, VRT | Strongly positive |
 | Hyperscaler capex guidance cut | Same as above | Strongly negative |
-| New Nvidia GPU architecture announcement | NVDA (positive), AMD (pressure), HBM suppliers MU/SNDK | |
+| New Nvidia GPU architecture announcement | NVDA (positive), AMD (pressure), HBM suppliers MU/SNDK/SKHY | |
 | TSMC capacity expansion | AMAT, LRCX, ASML, SNPS, CDNS | Positive |
 | US-China chip export restrictions tightened | NVDA, AMD, AMAT (negative short-term); domestic beneficiaries | |
 | New AI model release (OpenAI, Google, Anthropic) | Positive for AI infrastructure stocks broadly | |
 | Enterprise AI adoption slowdown reports | Negative for software AI plays (PLTR, SNOW, DDOG) | |
-| Data center power constraints | CEG, VST, NRG (positive); limits hyperscaler growth (negative) | |
+| Data center power constraints | CEG, VST, NRG, GEV (positive); limits hyperscaler growth (negative) | |
 
 ---
 
-## 4. Insider Activity (90-Day Window)
+## 4. Earnings Calendar
 
-Search: `"TICKER" insider buying SEC Form 4` or `openinsider.com TICKER`
-
-Look for:
-- Any buy transactions (voluntary, not pre-scheduled 10b5-1)
-- The role of the buyer (CEO > CFO > VP in significance)
-- The dollar size relative to their compensation
-
-| Pattern | Signal |
-|---|---|
-| CEO or CFO open-market buy > $500K | Strong positive — high conviction from top executive |
-| Multiple executives buying in same month | Cluster buying — very bullish signal |
-| 10b5-1 scheduled plan sales | Neutral — ignore, pre-planned |
-| Large unscheduled sale by CEO | Mild negative — investigate, but may be personal reasons |
-| Collective net buying (buys > sells over 90 days) | Positive |
-| Collective net selling (sells >> buys over 90 days) | Mild negative |
-
----
-
-## 5. Earnings Calendar
-
-**Mandatory per-session check for ALL current holdings.** At the start of every session, pull the earnings date for each stock you currently hold — use the available Robinhood MCP earnings-calendar tool (see [Robinhood's tool documentation](https://robinhood.com/us/en/support/articles/trading-with-your-agent/)), falling back to web search if needed. For each holding, compute how many trading days until its next report and flag it:
+**Mandatory every session for ALL current holdings.** At the start of every session, pull the next earnings date for each stock you hold — use the Robinhood MCP earnings-calendar tool (see [Robinhood's tool documentation](https://robinhood.com/us/en/support/articles/trading-with-your-agent/)), falling back to web search. For each holding, count the trading days until its report and flag it:
 
 | Days to earnings | Flag | Action |
 |---|---|---|
-| Reports today or next session (0–1 days) | **HIGH gap risk** | Note it prominently in the log; the position carries binary event risk into the report. This is a proactive warning — the ATR stop still handles the aftermath, but you must not be surprised by it. |
-| 2–3 trading days out | Elevated | Flag in the log; do NOT add to the position (see below) |
+| Reports today or next session (0–1 days) | **HIGH gap risk** | Note it prominently in the log; the position carries binary event risk into the report. This is a warning, not an exit — the stop rules still handle the aftermath, but you must not be surprised by it. |
+| 2–3 trading days out | Elevated | Flag it in the log; no adds (see below) |
 | 4+ trading days out | Normal | No action |
 
-Also, at the start of each week, check the broader calendar (e.g. `AI semiconductor earnings this week`) so upcoming reports across the watchlist are known in advance.
+At the start of each week, also check the broader calendar (e.g. `AI semiconductor earnings this week`) so upcoming reports across the watchlist are known in advance.
 
-**Earnings risk management:**
-- Do NOT add to a position within 3 trading days of earnings (IV is elevated; risk is binary)
-- Do NOT open a NEW position within 3 trading days of its earnings (`06_risk_management.md` Do-Not-Trade checklist)
-- Consider trimming 25% of oversized positions before earnings to manage event risk
-- After earnings: wait for the initial reaction to settle (usually by end of day) before reacting
-- A beat-and-raise that sells off after initial pop = institutional distribution — consider trimming
-- An earnings gap-down >8% on above-average volume is a hard exit trigger (`06_risk_management.md` Exit Rules — D)
+**Earnings rules:**
+- **No new position and no add within 3 trading days before a report** — IV is elevated and the risk is binary (`07_decision_framework.md` Step 0, gate 4).
+- **No new position and no add until one full session after a report** has passed, so the initial reaction can settle.
+- **The waiting rules delay entries only — never exits.** The stops and the earnings gap-down exit fire immediately.
+- **Earnings gap-down**: a gap down of more than 8% on the earnings day on above-average volume is a hard exit (`06_risk_management.md` Exit Rule D).
+- **There is no discretionary pre-earnings trim.** The defined pre-earnings controls are the no-add and no-entry rules above and the gap-down exit. A size-based pre-earnings trim would have to be added to `06` as an explicit rule with a numeric threshold — it is not improvised here.
+- A beat-and-raise that sells off after the initial pop is a **price reaction**, so it is scored in Technical (`03`), and the holding remains subject to the trend-break rule. It is not an exit on its own.
 
-**Why this is mandatory every session:** several positions (DDOG on 2026-08-06; MU/ASML/KLAC/META/AMD in the prior month) were lost to same-day earnings gaps. The stop mechanism handled the aftermath correctly, but proactive per-holding earnings awareness lets you see the gap risk coming rather than only reacting to it.
+**Why this check is mandatory:** several positions (DDOG on 2026-08-06; MU/ASML/KLAC/META/AMD in the prior month) were lost to earnings gaps. The stop mechanism handled the aftermath correctly, but per-holding earnings awareness lets you see the risk coming rather than only reacting to it.
 
 ---
 
 ## News Score (0–5)
 
+Covers non-earnings company events, sector catalysts, and the macro backdrop. Earnings and insider activity are scored in `02`.
+
 | Score | Conditions |
 |---|---|
-| 5 | Major positive catalyst (contract win, earnings beat, hyperscaler capex raise) + macro tailwind |
-| 4 | Positive company news + neutral macro |
+| 5 | Major positive non-earnings catalyst (large contract win, acquisition target, index inclusion, a strong sector tailwind such as a hyperscaler capex raise) + supportive macro |
+| 4 | Positive company or sector news + neutral macro |
 | 3 | No significant news; macro neutral |
-| 2 | Negative company news OR macro headwind (rate hike, recession signal) |
-| 1 | Material negative news (miss + guidance cut OR investigation) |
-| 0 | Thesis-breaking news; immediate reassessment required |
+| 2 | Negative company or sector news OR a macro headwind (rate hike, recession signal, fast-rising yields) |
+| 1 | Material negative non-earnings event (investigation, loss of a major customer, dilutive offering) |
+| 0 | A non-earnings event that breaks the thesis — assess it against the thesis stop in `06` |

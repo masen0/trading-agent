@@ -1,21 +1,49 @@
 ---
 file: 07_decision_framework.md
-purpose: How to synthesize all signals into a final buy/sell/hold decision
+purpose: How to turn signals into entry decisions, and how decisions are documented
 ---
 
 # Decision Framework
 
 ## Overview
 
-After completing all four analysis domains (fundamental, technical, sentiment, news/macro), combine their scores into a composite signal score, run the bull/bear debate, and then apply the risk management rules before executing.
+The order is fixed:
 
-**Decision hierarchy**: Risk management overrides everything. A perfect signal score means nothing if executing the trade violates a hard risk limit.
+1. **Eligibility gates** (Step 0) — cheap, binary checks, applied before any deep analysis
+2. **Analysis and scoring** (Step 1) — only for candidates that passed Step 0
+3. **Score thresholds** (Step 2)
+4. **Bull/bear debate** (Step 3)
+5. **Sizing within the risk limits** (`06_risk_management.md`)
+6. **Documentation, then execution** (Step 5)
+
+Existing holdings are always analyzed, but only to evaluate the Exit Rules in `06_risk_management.md`. An add to a holding is a new entry and goes through the full sequence above.
+
+**Decision hierarchy**: risk management overrides everything. A perfect score means nothing if the trade breaks a hard limit.
 
 ---
 
-## Step 1 — Composite Signal Score
+## Step 0 — Eligibility Gates (checked BEFORE analysis and scoring)
 
-Each domain produces a score from 0–5. Sum them for a total out of 20:
+Apply these to every candidate for a new entry or add before spending any effort on deep analysis. A candidate is ineligible unless ALL are true:
+
+1. **Regime**: SPY is more than ~1.5% above a rising 50-day SMA — not Bear, not Trendless (`00_overview.md`)
+2. **Market conditions**: VIX ≤ 30, and SPY is not down more than 2% from its prior close at the time of the session
+3. **Trend filter**: the stock is above its own **rising 50-day SMA** and above its **200-day SMA** (`03_technical.md`)
+4. **Earnings**: the stock does not report within 3 trading days, and did not report within the last full session (`05_news_macro.md`)
+5. **Re-entry lockout**: not sold at a loss within the last 5 trading days — unless price has since reclaimed its 50-day SMA on above-average volume, or shows a confirmed bullish RSI divergence
+6. **Once per symbol per day**: no trade already executed in this symbol today
+7. **Sector**: the stock's sector proxy ETF is not in breakdown (`06_risk_management.md` Exit Rule E)
+8. **Data quality**: at least 200 daily bars of price and volume history are available, current, and internally consistent — no stale reads and no mismatched bar cutoffs
+
+**If any gate fails: record the reason and stop.** Do not analyze or score the candidate, and never let a high score compensate for a failed gate.
+
+Two further hard checks come later because they depend on the analysis — the score thresholds (Step 2) and the risk limits at sizing (`06`). They are just as binding; Step 0 is the first filter, not the only one.
+
+---
+
+## Step 1 — Composite Score
+
+Each of the four domains produces a score from 0 to 5. Combine them into a weighted total, then normalize it to 0–20:
 
 | Domain | Score (0–5) | Weight |
 |---|---|---|
@@ -24,136 +52,174 @@ Each domain produces a score from 0–5. Sum them for a total out of 20:
 | Sentiment (`04_sentiment.md`) | ___/5 | 0.75× |
 | News/Macro (`05_news_macro.md`) | ___/5 | 1.25× |
 
-**Weighted total** = (Fundamental × 1.5) + (Technical × 1.0) + (Sentiment × 0.75) + (News × 1.25)
+**Weighted total** = (Fundamental × 1.5) + (Technical × 1.0) + (Sentiment × 0.75) + (News × 1.25). The maximum is 22.5.
 
-Maximum weighted score = 5×1.5 + 5×1.0 + 5×0.75 + 5×1.25 = 22.5
-
-Normalize to 0–20:
 **Final Score** = (Weighted Total / 22.5) × 20
 
 **Why these weights?**
-- Fundamental is highest because it's what drives long-term value
+- Fundamental is highest because it drives long-term value
 - News/Macro is second because near-term catalysts and regime can override fundamentals temporarily
 - Technical is third because price action reflects consensus; useful for timing
-- Sentiment is lowest because it's most subject to noise and manipulation
+- Sentiment is lowest because it is the most subject to noise and manipulation
 
----
+### No double-counting — each fact belongs to exactly ONE domain
 
-## Step 2 — Score Interpretation
+The composite is a **ranking aid, not a probability forecast**, and it is only meaningful if the four domains stay independent. One event that lifts three domains at once inflates the score threefold on a single piece of information.
 
-| Score | Decision Zone | Default Action |
+The worst offender is earnings. A beat can naively lift Fundamental (*the beat*), News (*positive catalyst*), **and** Sentiment (*the upgrades that follow*) — one fact counted three times, systematically inflating composites after every report. Ownership:
+
+| Fact | Owned by | Explicitly NOT counted in |
 |---|---|---|
-| 17–20 | **Strong Buy** | Buy at full conviction sizing |
-| 14–16 | **Buy** | Buy at medium conviction sizing |
-| 11–13 | **Weak Buy / Hold** | Hold existing; no new buy |
-| 8–10 | **Hold** | No action |
-| 5–7 | **Weak Sell / Watch** | Consider trimming; tighten stop |
-| 2–4 | **Sell** | Trim or exit; move to cash |
-| 0–1 | **Strong Sell** | Exit immediately |
+| Earnings results, guidance, margins, EPS/revenue surprise | **Fundamental** | News, Sentiment |
+| Insider buying and selling (Form 4) | **Fundamental** | News, Sentiment |
+| Analyst rating and price-target changes | **Sentiment** | News, Fundamental |
+| Short interest, options flow, social sentiment, 13F flows | **Sentiment** | News |
+| The market's *reaction* to an event (gap, sell-the-news, breakout) | **Technical** | News |
+| Non-earnings company events: contracts, M&A, regulatory, product, offerings | **News** | Fundamental |
+| Macro and sector-level developments | **News** | all others |
 
-**For selling specifically**: the score applies to both NEW buys and EXISTING holdings. If an existing position scores below 7, re-evaluate whether to hold or exit.
+When a fact could plausibly sit in two domains, score it in its owner and treat it as **neutral** in the other.
+
+**Missing data:** if a domain's inputs are genuinely unavailable (for example, thin sentiment coverage on a small name), score that domain a **neutral 3** and note reduced confidence in the log. **Do not invent evidence** to fill a gap.
 
 ---
 
-## Step 3 — Bull/Bear Internal Debate
+## Step 2 — Score Thresholds
 
-Before acting on any score above 13 (Buy) or below 7 (Sell), force yourself to argue the opposite case:
+### For new entries and adds (after passing Step 0)
 
-### For a BUY signal — argue the bear case:
+| Final score | Zone | Decision |
+|---|---|---|
+| 17–20 | Strong Buy | Eligible — high-conviction sizing (`06`) |
+| 14–16 | Buy | Eligible — medium-conviction sizing |
+| 11–13 | Weak Buy | Not eligible — **unless the momentum-breakout exception applies** |
+| ≤ 10 | — | Not eligible |
+
+**Momentum-breakout exception**: if the most recent completed daily close was a new 52-week high on volume ≥ 1.5× its 30-day average, a score of 11–13 is eligible at starter size. A breakout on volume signals institutional conviction, and the overbought RSI that accompanies it must not veto the entry (`03_technical.md`). The exception lowers the score threshold only — every other check still applies.
+
+**Threshold adjustments — all binding. When more than one applies, the highest minimum wins** (for example, a breakout scoring 12 in a concentrated sector needs 15, so it is not eligible):
+- **Concentrated sector** (2 or more holdings already in the candidate's sector, per `01_universe.md`): the minimum score is **15**
+- **Bull — Defensive regime** (VIX 25–30): the minimum score is **17**
+- **Fundamental sub-score of 0** (thesis broken): not eligible at any composite score
+- A **Fundamental sub-score ≤ 2** does not block the entry, but caps its sizing at medium conviction (`06`)
+
+### For existing holdings — the score is diagnostic, never an exit order
+
+| Final score | Meaning |
+|---|---|
+| 11–20 | Healthy — hold |
+| 6–10 | Watch — re-examine the thesis; no action on the score alone |
+| 0–5 | Deteriorating — if the position has been held more than 5 trading days, the **deterioration stop** fires (`06` Exit Rule D); otherwise diagnostic |
+
+Exits are governed **exclusively** by the Exit Rules in `06_risk_management.md`. The deterioration stop is the only score-based exit, and it exists so a genuinely broken holding cannot linger — not as a license to act on every score dip.
+
+Why this matters: a winner that has run will often see its technical sub-score fall *because* it is extended. If a low score alone could force a sale, the framework would systematically sell its best trades — the exact inversion `00_overview.md` tenet 3 forbids.
+
+---
+
+## Step 3 — Bull/Bear Debate
+
+The debate applies to exactly two situations:
+- **Every new entry or add** that has passed Step 0 and met its Step 2 threshold
+- **The thesis stop** — the one judgment-based exit in `06`
+
+**Mechanical exits are executed without debate**: the initial stop, the trailing stop, the trend break, the underwater death cross, the earnings gap-down, the deterioration stop, the time stop, the loss backstop, and the portfolio controls. Deliberating over a triggered stop is how losers get held (`00_overview.md` tenet 2).
+
+### Before an entry — argue the bear case
 - What is the strongest argument that this stock goes DOWN from here?
-- Is there a catalyst that could make the thesis wrong in the next 30 days?
-- What does the stock need to do to justify the current valuation? Is that realistic?
+- Is there a catalyst that could break the thesis in the next 30 days?
+- What must the stock do to justify its valuation? Is that realistic?
 - Who is on the other side of this trade, and why might they be right?
 
-### For a SELL/TRIM signal — argue the bull case:
-- What is the strongest argument that this stock goes UP from here?
-- Is the current weakness a temporary pullback within an intact uptrend, or a genuine trend break (price closed below a rising 50-day SMA)?
-- Is the trend still structurally up despite the noise?
-- Is this a mechanical stop/trend-break exit, or an emotional reaction to a red day?
+### Before a thesis-stop exit — argue the bull case
+- Is the negative event verified from a primary source (a filing or company release), or is it only a headline?
+- Does it genuinely break the original thesis, or is it noise an intact trend can absorb?
+- Is price still above a rising 50-day SMA? The market's own verdict counts.
 
-(Note: this debate does not authorize *buying* weakness — the trend filter still forbids new entries below the 50-day SMA. It only governs whether to exit an existing position.)
+(This debate never authorizes *buying* weakness: the trend filter in Step 0 still forbids entries below the 50-day SMA.)
 
-**Rule**: If you cannot clearly articulate why the opposing case is wrong, reduce position size by 50% or do nothing. Uncertainty is not a reason to trade.
+**Rule**: if you cannot clearly refute the opposing case, **do nothing** — for an entry, no trade; for a thesis stop, keep holding under the mechanical stops. Half-sizing does not resolve an unrefuted bear case; it just takes a smaller version of a trade you could not justify. Uncertainty is not a reason to trade at any size (`00_overview.md`: "When in doubt, do nothing").
 
 ---
 
 ## Step 4 — Final Decision Matrix
 
-After the bull/bear debate, apply:
-
 | Situation | Action |
 |---|---|
-| Score ≥ 14 AND bull case clearly dominates AND risk checks pass | Buy at scored sizing |
-| Score 11–13 AND no material bear argument | Hold; no new buy |
-| Score ≥ 14 BUT strong bear argument remains | Reduce buy size by 50%; treat as medium conviction |
-| Score ≤ 7 AND thesis clearly weakening | Trim or exit |
-| Score ≤ 7 BUT strong bull counter-argument | Do nothing; hold and re-evaluate next session |
-| Stop-loss triggered | Exit regardless of score |
-| Do-not-trade checklist triggered | No trade regardless of score |
+| Candidate passes Step 0, meets its Step 2 threshold, and the bull case clearly dominates | Size per `06` and execute |
+| Candidate passes Step 0 and its threshold, but a material bear argument remains unrefuted | No trade |
+| Candidate fails any gate, threshold, or sizing limit | No trade — record the reason |
+| Holding: a mechanical Exit Rule fired | Exit per `06` — no debate |
+| Holding: thesis-stop evidence is present | Bull-case debate; exit only if the thesis is verifiably broken |
+| Holding: no Exit Rule fired | Hold — regardless of the score |
 
 ---
 
-## Step 5 — Trade Documentation (Required for Every Trade)
+## Step 5 — Documentation (Required)
 
-Before placing any order, write (for the email log):
+**For every trade**, write before placing the order:
 
 ```
 Trade: [BUY/SELL] $[amount] of [TICKER]
+Exit rule (sells only): [which Exit Rule in 06 fired]
 Score: [X]/20 (F:[x] T:[x] S:[x] N:[x])
-Thesis: [1–2 sentences why this trade makes sense]
+Fundamentals: [FRESH | REUSED from an earlier session today] — [2–3 drivers, e.g. "Q3 beat +12%, guidance raised, PEG 1.8"]
+Thesis: [1–2 sentences on why this trade makes sense]
 Bull case: [strongest supporting argument]
-Bear case: [strongest opposing argument — why it's still right to act]
-Invalidation: [what would make this trade wrong — what would trigger an exit]
-Stop-loss: $[price] ([X]% below entry — computed via the ATR method in skills/06, NOT a rounded number; show the ATR value used)
+Bear case: [strongest opposing argument, and why it is still right to act]
+Invalidation: [what would make this trade wrong]
+Initial stop: $[price] ([X]% below entry; ATR14 used: $[x]; multiple: [x]×)
+R: $[entry − initial stop]
 ```
 
-This documentation creates accountability and enables post-trade learning.
+**For every holding, in EVERY session log** (whether or not it traded), record its state:
+
+```
+[TICKER] entry [YYYY-MM-DD] | avg cost $[x] | initial stop $[x] | R $[x] | active stop $[x] | highest close since entry $[x] | progress [x.x]R
+```
+
+Sessions are stateless, and the broker does not store these values — without them, the R-multiple trailing stop, portfolio heat, and the time stop cannot be computed. Carry each value forward from the previous log, and update the active stop only upward. If a holding's initial stop cannot be recovered from the logs (for example, a position opened before this format existed), reconstruct it with the ATR method as of the entry date; if even that is impossible, set it from the current ATR, and say so in the log.
 
 ---
 
-## Step 6 — Post-Session Learning (Weekly)
+## Step 6 — Weekly Learning
 
-Once a week (Fridays), before sending the trading log, add a **Weekly Review** section to the email:
+At the **last session of each trading week**, add a **Weekly Review** to the log:
 
-1. Which trades from this week were profitable? What signal patterns led to them?
-2. Which trades lost money? Was the signal score high at entry? What was missed?
-3. Are there any recurring patterns in what's working vs. not?
-4. Any skills rules that should be adjusted based on recent performance?
+1. Which trades this week were profitable? What signal patterns led to them?
+2. Which trades lost money? Was the score high at entry? What was missed?
+3. Are there recurring patterns in what is working and what is not?
+4. Should any skills rule be adjusted based on recent performance?
 
-This is the mechanism for the trading agent to improve over time — not by predicting better, but by recognizing patterns in its own decision quality.
+This is how the agent improves over time — not by predicting better, but by recognizing patterns in its own decision quality.
 
 ---
 
-## Quick Reference — Decision Triggers Summary
+## Quick Reference
 
-**Automatic BUY triggers** (all must be true):
-- Score ≥ 14
-- **Trend filter (non-negotiable)**: the stock itself is above its own *rising* 50-day SMA. Never buy a stock trading below its 50-day SMA, regardless of score — that is a downtrend, and buying it is the falling-knife / averaging-down mistake. A strong fundamental story does NOT override a broken trend.
-- **Re-entry lockout**: if this symbol was sold at a loss within the last 5 trading days, do not re-buy unless price has reclaimed the 50-day SMA on above-average volume OR shows a confirmed bullish RSI divergence.
-- Not in bear market regime (SPY above 50-day SMA)
-- No earnings within 3 days
-- Symbol not already traded today
-- Risk checks pass (buying power, concentration limits)
-- **Exception — momentum breakout**: if price closes at a new 52-week high on volume ≥ 1.5× its 30-day average, the score threshold drops to ≥ 11. A breakout on high volume signals institutional conviction; the overbought RSI that typically accompanies it should not veto the entry. All other conditions (trend filter, regime, earnings, risk checks) still apply.
+*Summary only. Step 0, Step 2, and `06_risk_management.md` are authoritative; if this summary ever disagrees with them, they win.*
 
-**Automatic SELL triggers** (any one sufficient):
+**To enter or add, all of these must hold:**
+- Every Step 0 gate passes
+- The Step 2 threshold is met: ≥ 14 normally; ≥ 15 in a concentrated sector; ≥ 17 in Bull — Defensive; ≥ 11 under the momentum-breakout exception; never with a Fundamental sub-score of 0
+- The bull case clearly beats the bear case
+- The trade fits every sizing cap in `06`, including portfolio heat
+- An add is a new entry for all of the above
 
-*Exit discipline: losers are cut fast at a pre-set stop; winners are exited only by a trailing stop or a genuine trend break. Do NOT sell a healthy, trending position because RSI is high, it's "up a lot," or the score slipped a point — that is cutting a winner early and inverts the strategy's asymmetry. The exact mechanics of every exit type below are defined in one place — see "Exit Rules — Consolidated" in `06_risk_management.md`.*
+**The only ways a position is sold (`06` Exit Rules):**
+- Initial stop (A)
+- R-multiple trailing stop (B): breakeven at +2R; ATR trail from +3R
+- Trend break — full exit (C)
+- Underwater death cross — 50% (C)
+- Thesis stop — the only judgment exit (D)
+- Earnings gap-down (D)
+- Deterioration stop: score ≤ 5, held more than 5 trading days (D)
+- Time stop: at or below cost after 20 trading days (D)
+- Rebalancing trim or opportunity swap — never on a healthy winner (E)
+- Loss backstop: more than 20% below cost (E)
 
-- **Stop-loss breached**: initial stop set at entry using ATR method in `06_risk_management.md`
-- **Trailing stops** (see `06_risk_management.md`): stop moves to breakeven at +20% gain; trails 15% below current price at +40%; partial profit taken at +75%
-- Score drops to ≤ 5 on a position held for > 5 days
-- **Earnings gap down**: position gaps down >8% on earnings day on above-average volume — trim or exit before the next session; do not hold through the subsequent drift expecting recovery
-- **Death cross on a losing position**: 20-day SMA crosses below 50-day SMA while the position is already down >10% from cost — this combination signals trend deterioration on an underwater position; trim by at least 50%
-- **Sector ETF breakdown**: the stock's sector ETF (SMH for semis/memory, XLK for software/mega-cap, XLC for comms) closes below its 50-day SMA on volume >1.5× average — reduce exposure to all holdings in that sector; this signals a sustained rotation, not a one-day event
-- Thesis-breaking news event (earnings miss + guidance cut, major competitive loss, regulatory action)
-- Position held > 60 days and fundamental thesis no longer valid
-- **Rebalancing trim**: sector concentration >40% of portfolio AND a stock from a different sector scores ≥ 14 — trim the lowest-scoring concentrated position by enough to bring the sector under 40% and fund the new entry
-- **Opportunity swap**: a current holding scores ≤ 10 AND an alternative stock scores ≥ 16 with a stronger composite thesis — sell the weak holding to fund the stronger one
+**Never reasons to sell on their own:** high RSI, extension above the 50-day SMA, a lower score (other than the deterioration stop), an analyst downgrade, a sector ETF breakdown, or being "up a lot."
 
-**Always HOLD** (do nothing):
-- Score 8–13 with no stop-loss breach
-- Mixed signals with no dominant direction
-- High-uncertainty environment (VIX > 30, SPY down >2%)
-- **A winning position in an intact uptrend** — hold it; do not trim on high RSI or a minor score dip
-- **Trendless / choppy market** (SPY oscillating around its 50-day SMA) — default to no action; trend-following has no edge without a trend, and forcing trades here produces whipsaw losses
+**No new entries — but every exit still fires:** a Bear or Trendless regime, VIX above 30, or SPY down more than 2% on the day.
+
+**Hold** any position for which no Exit Rule has fired.
