@@ -116,13 +116,22 @@ How to act on the reasoning context:
 
 Establish the regime at the start of every session. Classification is **two-stage**, so every market state maps to exactly one regime.
 
-**Stage 1 — the primary gate (SPY vs. its 50-day SMA):**
+**Stage 1 — the primary gate (SPY vs. its 50-day SMA).** Evaluate the tests below **in order**, on completed daily bars, and stop at the first that applies. All of them are computable from SPY's daily history — no stored state is needed.
 
-| SPY condition | Result |
-|---|---|
-| More than ~1.5% above a **rising** 50-day SMA | Risk-on → go to Stage 2 |
-| Within ~1.5% of the 50-day SMA, or the 50-day SMA is flat | **Trendless** → no new entries, at any VIX |
-| **Below** the 50-day SMA | **Bear** → no new entries, at any VIX |
+Definitions used here:
+- The 50-day SMA is **rising** if it is higher than it was 10 completed sessions ago.
+- It is **flat** if it has moved less than ±0.25% over those 10 sessions.
+
+| # | Test | Result |
+|---|---|---|
+| 1 | SPY's latest completed close is **below** its 50-day SMA | **Bear** → no new entries, at any VIX |
+| 2 | The 50-day SMA is **flat**, OR SPY has **crossed** its 50-day SMA in either direction within the last 5 completed sessions | **Trendless** → no new entries, at any VIX |
+| 3 | The 50-day SMA is **rising** AND **either** (a) SPY is more than **1.5% above** it — the *separation* path — **or** (b) SPY has closed **above** it for at least **10 consecutive** completed sessions — the *persistence* path | **Risk-on** → go to Stage 2 |
+| 4 | Anything else | **Trendless** → no new entries |
+
+**Why there are two risk-on paths.** A separation test alone measures only *distance* to the average, and cannot tell apart two very different markets: price oscillating across a **flat** average (real chop, no edge) versus price riding steadily above a **rising** average at modest separation (a real, low-volatility uptrend). If price holds ~0.8% above an average that is itself climbing, price is climbing too. Test 3(b) exists so that market qualifies.
+
+This is not a theoretical concern. Between 2026-09-23 and 2026-10-05 the agent sat out **17 consecutive sessions** on the separation test while SPY never once closed below its 50-day SMA (its low was +0.18% above), the SMA rose monotonically every session, VIX ran 14–16, and the account's own holdings printed 52-week highs. That was an uptrend being classified as chop, with about 26% of the account left idle. Test 2 now carries the chop filter — a flat average, or price crossing it — which is what "trendless" actually means.
 
 **Stage 2 — VIX sets sizing and thresholds within risk-on:**
 
@@ -137,7 +146,9 @@ Establish the regime at the start of every session. Classification is **two-stag
 
 **In a Bear or Trendless regime, or with VIX above 30: open no new positions and make no adds. Every exit rule still fires normally.**
 
-**Why a trendless override independent of VIX:** trend-following has no edge without a trend, and choppiness is not captured by VIX alone — the 2026-07-13 week was choppy at VIX ~18. Judge it from SPY's price structure, not just the fear gauge.
+**Why the trendless test is independent of VIX:** trend-following has no edge without a trend, and choppiness is not captured by VIX alone — the 2026-07-13 week was choppy at VIX ~18. Judge it from SPY's price structure (Stage 1 tests 1–2), not from the fear gauge.
+
+**And why it is independent of distance:** being *close* to the 50-day SMA is not the same as being *directionless*. Test 2 asks the right questions — is the average flat, and is price crossing it? A quiet grind higher is a trend worth trading even when separation is small.
 
 ---
 

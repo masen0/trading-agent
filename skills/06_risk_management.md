@@ -221,7 +221,7 @@ Before any new entry, check the sector distribution of current holdings (map eac
 Every item must be clear before any new entry or add. The items are grouped by *when* they are checked; `07_decision_framework.md` is authoritative for the first three groups.
 
 **Before analysis — market (`07` Step 0)**
-- [ ] SPY is below its 50-day SMA (Bear), or within ~1.5% of it or with a flat 50-day SMA (Trendless)
+- [ ] Stage 1 in `00_overview.md` does not reach risk-on: SPY is below its 50-day SMA (Bear), or the SMA is flat or SPY crossed it within the last 5 sessions (Trendless), or neither risk-on path is satisfied
 - [ ] VIX > 30
 - [ ] SPY is down more than 2% from its prior close at the time of the session
 

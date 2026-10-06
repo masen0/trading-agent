@@ -26,7 +26,7 @@ Existing holdings are always analyzed, but only to evaluate the Exit Rules in `0
 
 Apply these to every candidate for a new entry or add before spending any effort on deep analysis. A candidate is ineligible unless ALL are true:
 
-1. **Regime**: SPY is more than ~1.5% above a rising 50-day SMA — not Bear, not Trendless (`00_overview.md`)
+1. **Regime**: Stage 1 in `00_overview.md` reaches **risk-on** — the 50-day SMA is rising and SPY either sits more than 1.5% above it (separation path) or has closed above it for 10 consecutive sessions (persistence path). Not Bear, not Trendless.
 2. **Market conditions**: VIX ≤ 30, and SPY is not down more than 2% from its prior close at the time of the session
 3. **Trend filter**: the stock is above its own **rising 50-day SMA** and above its **200-day SMA** (`03_technical.md`)
 4. **Earnings**: the stock does not report within 3 trading days, and did not report within the last full session (`05_news_macro.md`)
