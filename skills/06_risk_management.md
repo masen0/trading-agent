@@ -195,6 +195,8 @@ Track the **highest completed daily close since entry**. The active stop ratchet
 
 Account drawdown is measured from the **high-water mark of account value, adjusted for deposits and withdrawals**, so that funding changes are not mistaken for performance.
 
+**The high-water mark is persisted state, not something to re-derive.** It is recorded in the ACCOUNT line of every session log (`07_decision_framework.md` Step 5), carried forward each session, and raised only when account value sets a new peak. This matters precisely when it is hardest: in a drawdown, account value falls while the HWM must stay put. An agent that re-derives the HWM from whatever recent values it happens to have read will watch the mark fall alongside the account, report a drawdown near zero the whole way down, and never trip the limits below. If the carried HWM is missing, treat it as seeded (not established) and say so, rather than assuming the current value is a peak.
+
 | Scenario | Response |
 |---|---|
 | A position more than 12% below its average cost | Mandatory review — confirm its active stop is recorded; no adds |

@@ -172,13 +172,26 @@ Initial stop: $[price] ([X]% below entry; ATR14 used: $[x]; multiple: [x]×)
 R: $[entry − initial stop]
 ```
 
-**For every holding, in EVERY session log** (whether or not it traded), record its state:
+**In EVERY session log** (whether or not it traded), record both state blocks below. Sessions are stateless and the broker does not store these values — without them the R-multiple trailing stop, portfolio heat, the time stop, and the drawdown limits cannot be computed.
+
+**1. Account state — one line:**
+
+```
+ACCOUNT account value $[x] | high-water mark $[x] | drawdown from HWM [x.xx]% | portfolio heat $[x] = [x.xx]% | net deposits/withdrawals since last session $[x]
+```
+
+Rules for the high-water mark:
+- Carry it forward from the previous log. **It only ever moves up**: if today's account value exceeds the carried HWM, the HWM becomes today's value; otherwise it stays exactly as carried, even as account value falls. Never re-derive it from recent values — a falling market would silently reset it and hide the drawdown.
+- **Adjust for cash flows**: if money was deposited or withdrawn, shift the HWM by the same amount so funding is never recorded as performance (or a withdrawal as a loss).
+- If no previous log is available, seed the HWM at the current account value, and **say in the log that it was seeded** rather than carried — a seeded HWM understates any drawdown in progress, so the next session must not treat it as established history.
+
+**2. Per-holding state — one line each:**
 
 ```
 [TICKER] entry [YYYY-MM-DD] | avg cost $[x] | initial stop $[x] | R $[x] | active stop $[x] | highest close since entry $[x] | progress [x.x]R
 ```
 
-Sessions are stateless, and the broker does not store these values — without them, the R-multiple trailing stop, portfolio heat, and the time stop cannot be computed. Carry each value forward from the previous log, and update the active stop only upward. If a holding's initial stop cannot be recovered from the logs (for example, a position opened before this format existed), reconstruct it with the ATR method as of the entry date; if even that is impossible, set it from the current ATR, and say so in the log.
+Carry each value forward from the previous log, and move the active stop **only upward**. If a holding's initial stop cannot be recovered from the logs (for example, a position opened before this format existed), reconstruct it with the ATR method as of the entry date; if even that is impossible, set it from the current ATR, and say so in the log.
 
 ---
 

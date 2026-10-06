@@ -57,7 +57,7 @@ Sessions run on a fixed schedule during regular market hours. The number and tim
 ### Phase 1 — Context
 1. Classify the market regime (see Market Regime Classification below).
 2. Note any major macro events today (Fed, CPI, jobs data, earnings from major names).
-3. Check account state: account value, buying power, positions, and orders already placed today. Load each holding's state (entry date, initial stop, R, active stop, highest close) from the previous session log (`07_decision_framework.md` Step 5).
+3. Check account state: account value, buying power, positions, and orders already placed today. From the previous session log (`07_decision_framework.md` Step 5) load both the **account state** (high-water mark) and each **holding's state** (entry date, initial stop, R, active stop, highest close).
 
 ### Phase 2 — Manage holdings first
 Every current holding is analyzed every session to evaluate the Exit Rules in `06_risk_management.md` — stops first, then the trend, thesis and event rules. Mechanical exits execute without debate.
@@ -104,6 +104,7 @@ Each session is independent and starts cold, so continuity comes from two extern
 
 How to act on the reasoning context:
 - Check every forward-looking flag or invalidation level from the previous log against live data now, and act if it has triggered.
+- Carry the **account state** forward — account value and the **high-water mark** (raised only on a new peak, adjusted for deposits and withdrawals). The drawdown limits in `06_risk_management.md` depend on the HWM surviving between sessions.
 - Carry each holding's thesis and its state — entry date, initial stop, R, active stop, highest close since entry — forward. Update the active stop only upward.
 - Do not repeat a mistake the Weekly Review named; do not reverse a 1–2 session-old decision absent a new trigger.
 
