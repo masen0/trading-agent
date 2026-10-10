@@ -82,7 +82,15 @@ Two things to understand about this definition:
 - It measures **risk of an actual realized loss**, not give-back of unrealized gains. A position whose active stop has ratcheted to breakeven or above contributes **zero heat** — it cannot produce a loss. This is deliberate: measuring from the *current price* would make a large winner look like the riskiest thing in the book and would throttle new entries precisely because the strategy is working.
 - It is a **planning estimate, not a guarantee.** Logical stops are checked only at scheduled sessions, so a gap can carry a position through its stop and realize more than the budgeted loss.
 
-Heat is recomputed every session, because active stops move.
+**There is exactly ONE heat number.** The figure reported in the session log, the figure compared to the 6% cap, and the `current_heat_dollars` in the `final_size` clamp above are all the same number, produced by the formula above and by nothing else. Do **not** construct a second, more conservative "figure to size against":
+
+- **Always use the ACTIVE stop, never the initial one.** A position whose active stop has ratcheted to its average cost or above contributes **$0.00** — to the reported heat *and* to the sizing clamp alike. Substituting its original risk (`R × quantity`, or anything else derived from the initial stop) is forbidden: the ratchet is the event that frees the risk budget, and declining to credit it charges the account for having protected a winner — the exact outcome the `min(current_price, avg_cost)` term exists to prevent.
+- A locked-in **gain** is likewise not risk. If the active stop sits *above* average cost, the position still contributes `$0.00`, never a negative number and never the surplus.
+- *Worked example:* 0.1865 shares, average cost $431.32, initial stop $352.36 (`R = $78.96`), active stop ratcheted to breakeven at $431.32. Then `min(price, cost) − active_stop = $0.00`, so `position_risk = $0.00`. The `R × quantity = $14.72` of risk this position used to carry is historical; it is not heat, not "heat for sizing purposes," and does not reduce the headroom available to a new entry.
+
+Reaching for the pre-ratchet figure is not a cautious reading of this rule — it is a different rule, and it is wrong. Apply the formula to **every** holding identically; a treatment applied to one position and not to others in the same state is an error, not a judgment. **If the formula leaves headroom, the headroom is real** — size against it.
+
+Heat is recomputed from live positions and current active stops every session, because both move. **Never carry a heat figure — or a conclusion about whether heat binds — forward from a previous log.** A prior session's arithmetic is a record, not a standing decision (`00_overview.md`, Session Continuity & Memory).
 
 ### Adding to a Position — Winners Only
 

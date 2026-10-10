@@ -185,6 +185,10 @@ Rules for the high-water mark:
 - **Adjust for cash flows**: if money was deposited or withdrawn, shift the HWM by the same amount so funding is never recorded as performance (or a withdrawal as a loss).
 - If no previous log is available, seed the HWM at the current account value, and **say in the log that it was seeded** rather than carried — a seeded HWM understates any drawdown in progress, so the next session must not treat it as established history.
 
+Rules for portfolio heat:
+- **Recompute it every session** from live positions and current active stops (`06_risk_management.md`). Unlike the HWM, heat is never carried — neither the figure nor a conclusion about whether it binds.
+- Report **one** number, and let it be the same number that clamps new-entry size. A holding whose active stop has ratcheted to its average cost **or above** contributes $0.00 to it, and nothing is added back for sizing — not its original `R × quantity`, not a locked-in gain.
+
 **2. Per-holding state — one line each:**
 
 ```
