@@ -29,6 +29,7 @@ Logs are for review only; no run reads them to make a trading decision. **One da
 
 The daily log is rebuilt from the broker at 15:45. Nothing needs to be carried during the day.
 - Trades: today's filled buys and sells (`get_equity_orders`).
+- Leftover P&L: today's realized P&L per symbol (`get_realized_pnl` or `get_pnl_trade_history`). Positions are gone by 15:45, so their average cost isn't available from `get_equity_positions`.
 - Opening range: the first 30-min bar of each traded symbol (`01` step 2).
 - Problems: any rejected or cancelled orders today.
 
@@ -37,7 +38,7 @@ DAY [date] | account $[x] | BP $[x]
 Trades [n] | W [n] L [n] | P&L $[x] ([x.x]%) | total R [x.x]
 [TICKER] buy $[size] @ $[entry] [HH:MM] | OR $[low]–$[high], initial stop $[x] ([x.x]%), R $[x]
    sell @ $[fill] [HH:MM] | [stop | flatten] | P&L $[x] = [+/-x.x]R | slippage vs stop [x.xx]%
-LEFTOVER [TICKER] [qty] sh sold @ $[fill] [HH:MM] | vs avg cost $[x]   (positions from a previous day; not counted as trades)
+LEFTOVER [TICKER] [qty] sh sold @ $[fill] [HH:MM] | realized P&L $[x]   (positions from a previous day; not counted as trades)
 Problems: [none | rejected/cancelled orders, data issues]
 Running since start: trades [n] | win [x]% | avg R [x.xx] | avg stop slippage [x.xx]% | P&L $[x]
 ```

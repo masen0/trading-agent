@@ -51,6 +51,7 @@ Token use is driven by the number of runs (each run pays a fixed startup cost), 
 - 2026-10-11: no more "legacy holdings". Every position held from a previous day, including the six fractional trend-strategy positions, is sold at the first full session. Reason: the user wants the account fully dedicated to day trading. The trend routine must not run on this account anymore.
 - 2026-10-11: logging cut to one daily email at the 15:45 flatten, plus immediate alerts for the kill switch and stuck positions. Reason: logs never guide trading (the broker is the memory), and everything in the per-trade emails can be rebuilt from order history at 15:45.
 - 2026-10-11: token reduction. Guard every 10 minutes (32 runs/day), afternoon full sessions removed (8/day), and rationale moved to this file.
+- 2026-10-12: LEFTOVER lines report realized P&L from Robinhood's realized-P&L history, because average cost is no longer visible at 15:45 (the first live log showed "vs avg cost n/a").
 
 ## Replay results (for reference)
 - 2026-09-24 to 10-09, 49 AI names, fractional rules: 30 in-play stock-days, 19 with green candles, 7 broke out by 11:30, 2 trades (NVDA 10/02 −1.1R, WDC 10/05 −0.47R), −$6.56. Twelve of the 19 green in-play names never broke their opening-range high. Too small a sample to judge the edge.
