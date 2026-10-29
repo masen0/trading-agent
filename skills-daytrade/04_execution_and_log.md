@@ -22,14 +22,14 @@ Account **`494502131`** only. **Every order: `type: market`, `market_hours: regu
 `side: sell`, `quantity` = exactly `intraday_quantity` for a day position, or exactly the overnight part for an Exit D sale (up to 6 decimals). Confirm the fill and sell any remainder.
 
 ## Logging
-Logs are for review only; no run reads them to make a trading decision. **One daily log per trading day, written by the 15:45 flatten session after the flatten** (always, even with no trades). Other runs send nothing, except the **STUCK POSITION** alert: a sell that failed twice. Name the symbol, quantity, and error. It repeats on each failing run until resolved, which is intended.
+Logs are for review only; no run reads them to make a trading decision. **One daily log per trading day, written by the flatten session (about 15:37) after the flatten** (always, even with no trades). Other runs send nothing, except the **STUCK POSITION** alert: a sell that failed twice. Name the symbol, quantity, and error. It repeats on each failing run until resolved, which is intended.
 
-- **Daily log → Gmail draft, never sent:** create a draft (Gmail `create_draft`) addressed to the user's own address, subject `DayTrade-Log [date]`, then apply the label `DayTrade-Log`. Create the label once if it doesn't exist.
+- **Daily log → Gmail draft, never sent:** create a draft (Gmail `create_draft`) addressed to the user's own address, subject `DayTrade-Log [date]`, then apply the label `DayTrade-Log`. Create the label once if it doesn't exist. If labeling fails, keep the draft and note it under Problems.
 - **STUCK POSITION alert → real email to the inbox:** send it (Gmail `send_message`) to the user's own address, subject `DayTrade ALERT: STUCK POSITION [TICKER] [HH:MM]`, label `DayTrade-Log`. This is the only email that is ever sent.
 
-The daily log is rebuilt from the broker at 15:45. Nothing needs to be carried during the day.
+The daily log is rebuilt from the broker at the flatten session. Nothing needs to be carried during the day.
 - Trades: today's filled buys and sells (`get_equity_orders`).
-- Leftover P&L: today's realized P&L per symbol (`get_realized_pnl` or `get_pnl_trade_history`). Positions are gone by 15:45, so their average cost isn't available from `get_equity_positions`.
+- Leftover P&L: today's realized P&L per symbol (`get_realized_pnl` or `get_pnl_trade_history`). Positions are gone by then, so their average cost isn't available from `get_equity_positions`.
 - Opening range: the first 30-min bar of each traded symbol (`01` step 2).
 - Problems: any rejected or cancelled orders today.
 
@@ -44,7 +44,8 @@ Running since start: trades [n] | win [x]% | avg R [x.xx] | avg stop slippage [x
 ```
 - **Exit type** of a day trade: sold before the flatten session = **stop**; sold by the flatten session = **flatten**. Any day position still open after the flatten goes under Problems (the guard's backup retries at 15:55).
 - **Slippage vs stop** = (stop − fill) / stop. Report it for stop exits whose stop never moved up (the trade never reached +2R). Otherwise write `n/a`.
+- **Finding past logs:** search drafts by subject `DayTrade-Log` (e.g. `list_drafts` with query `subject:DayTrade-Log`). Never search by label: a labeling failure must not hide logs.
 - **Running totals** carry forward from the previous daily log. Recompute them from the trade list if they look inconsistent.
 
 ## Weekly review (Friday's daily log)
-The Friday flatten session reads this week's daily logs (drafts labelled `DayTrade-Log`) and appends a review: expectancy (average R), win rate, average win and loss in R, average and worst stop slippage (if the average is > 1%, the sizing buffer is too small), and any problems. Propose at most **one** change with reasons. Never apply it yourself.
+The Friday flatten session reads this week's daily logs (drafts with subject `DayTrade-Log`) and appends a review: expectancy (average R), win rate, average win and loss in R, average and worst stop slippage (if the average is > 1%, the sizing buffer is too small), and any problems. Propose at most **one** change with reasons. Never apply it yourself.

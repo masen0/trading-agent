@@ -52,6 +52,7 @@ Token use is driven by the number of runs (each run pays a fixed startup cost), 
 - 2026-10-11: logging cut to one daily email at the 15:45 flatten, plus immediate alerts for the kill switch and stuck positions. Reason: logs never guide trading (the broker is the memory), and everything in the per-trade emails can be rebuilt from order history at 15:45.
 - 2026-10-11: token reduction. Guard every 10 minutes (32 runs/day), afternoon full sessions removed (8/day), and rationale moved to this file.
 - 2026-10-12: LEFTOVER lines report realized P&L from Robinhood's realized-P&L history, because average cost is no longer visible at 15:45 (the first live log showed "vs avg cost n/a").
+- 2026-10-29: ADV10 for the in-play test now comes from daily price bars, as in the replay. The scanner's `volumeAvg10Day` ran ~1.5× higher on NXPI 10/28 (earnings), so NXPI showed 68.6% live vs 104% in the replay. The scanner prefilter was loosened to 0.3. Past logs are found by subject, not label (labeling failed from 10/21). The schedule moved to quieter minutes (measured: :00 slots up to 32 min late, :35–:59 about 1 min) with winter-time UTC crons; the flatten is about 15:37.
 
 ## Replay results (for reference)
 - 2026-09-24 to 10-09, 49 AI names, fractional rules: 30 in-play stock-days, 19 with green candles, 7 broke out by 11:30, 2 trades (NVDA 10/02 −1.1R, WDC 10/05 −0.47R), −$6.56. Twelve of the 19 green in-play names never broke their opening-range high. Too small a sample to judge the edge.
